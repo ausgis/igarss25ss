@@ -2,7 +2,8 @@
 
 ## Define study area
 
-```{r study_area, echo=FALSE, fig.cap="The location of study area, West Daly, in Australia"}
+```{r fig-studyarea, echo=FALSE}
+#| fig.cap: The location of study area, West Daly, in Australia
 knitr::include_graphics("figures/study_area.jpg")
 ```
 
