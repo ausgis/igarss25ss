@@ -96,7 +96,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
-}</script><link rel="stylesheet" href="styles.css">
+}</script>
 </head>
 <body class="nav-sidebar floating">
 
@@ -267,10 +267,157 @@ Description of steps
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co">// Loop through and export data for the years 2000 to 2023</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">var</span> year <span class="op">=</span> <span class="dv">2023</span><span class="op">;</span> year <span class="op">&lt;=</span> <span class="dv">2024</span><span class="op">;</span> year<span class="op">++</span>) {</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exportYearlyBurnedArea</span>(year)<span class="op">;</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The GEE code link: <a href="https://code.earthengine.google.com/c4c9731308de7f49c6e468c3daa8cb03" class="uri">https://code.earthengine.google.com/c4c9731308de7f49c6e468c3daa8cb03</a> .</p>
 </section><section id="collecting-climate-data" class="level2" data-number="1.3"><h2 data-number="1.3" class="anchored" data-anchor-id="collecting-climate-data">
 <span class="header-section-number">1.3</span> Collecting climate data</h2>
+<ul>
+<li><strong>Temperature</strong></li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled" title="Aim">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Aim
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This code is designed to compute and export the annual mean temperature from the ERA5-Land Hourly Temperature dataset using GEE.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled" title="Description of steps">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Description of steps
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Load ERA5 hourly temperature data from Google Earth Engine.</li>
+<li>Define a function to compute the annual mean temperature.</li>
+<li>Set a time range (January 1st to December 31st of the given year).</li>
+<li>Filter the dataset for the given year and compute the mean temperature.</li>
+<li>Convert temperature from Kelvin to Celsius.</li>
+<li>Clip the data to the ROI.</li>
+<li>Export the processed temperature data to Google Drive as a GeoTIFF.</li>
+<li>Loop through the desired years and execute the function.</li>
+</ol>
+</div>
+</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the ERA5 daily temperature dataset</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"ECMWF/ERA5_LAND/HOURLY"</span>)<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Define a function to calculate and export the annual mean temperature</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">exportYearlyTemperature</span>(year) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Create the date range</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> startDate <span class="op">=</span> ee<span class="op">.</span><span class="at">Date</span><span class="op">.</span><span class="fu">fromYMD</span>(year<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> endDate <span class="op">=</span> startDate<span class="op">.</span><span class="fu">advance</span>(<span class="dv">1</span><span class="op">,</span> <span class="st">'year'</span>)<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Filter the dataset and compute the annual mean temperature (unit: K)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> yearlyTemperature <span class="op">=</span> dataset<span class="op">.</span><span class="fu">filterDate</span>(startDate<span class="op">,</span> endDate)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">.</span><span class="fu">select</span>(<span class="st">'temperature_2m'</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">.</span><span class="fu">mean</span>()  <span class="co">// Compute annual mean temperature</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)  <span class="co">// Convert to Celsius</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">.</span><span class="fu">clip</span>(roi<span class="op">.</span><span class="fu">geometry</span>()<span class="op">.</span><span class="fu">bounds</span>())<span class="op">;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Export the result to Google Drive</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">image</span><span class="op">:</span> yearlyTemperature<span class="op">,</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">description</span><span class="op">:</span> <span class="st">'Tem'</span> <span class="op">+</span> year<span class="op">,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">scale</span><span class="op">:</span> <span class="dv">5000</span><span class="op">,</span>  <span class="co">// ERA5 resolution, recommended 5km (5000m)</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">// Loop to calculate the annual mean temperature for the years 2000-2024</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">var</span> year <span class="op">=</span> <span class="dv">2002</span><span class="op">;</span> year <span class="op">&lt;=</span> <span class="dv">2002</span><span class="op">;</span> year<span class="op">++</span>) {</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exportYearlyTemperature</span>(year)<span class="op">;</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The GEE code link: <a href="https://code.earthengine.google.com/5a7f743bb1d0bd174f1d199e26dc4d61" class="uri">https://code.earthengine.google.com/5a7f743bb1d0bd174f1d199e26dc4d61</a> .</p>
+<ul>
+<li><strong>Precipitation</strong></li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled" title="Aim">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Aim
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This code is designed to compute and export the annual cumulative precipitation from the CHIRPS 5-day interval precipitation dataset using GEE.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled" title="Description of steps">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Description of steps
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Load CHIRPS 5-day interval precipitation data from Google Earth Engine.<br>
+</li>
+<li>Define a function to compute the annual cumulative precipitation.<br>
+</li>
+<li>Set a time range (January 1st to December 31st of the given year).<br>
+</li>
+<li>Filter the dataset for the given year and compute the total precipitation.<br>
+</li>
+<li>Clip the data** to the ROI.<br>
+</li>
+<li>Export the processed precipitation data to Google Drive as a GeoTIFF.<br>
+</li>
+<li>Loop through the desired years (2000-2024) and execute the function.</li>
+</ol>
+</div>
+</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the CHIRPS dataset (5-day interval precipitation)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"UCSB-CHG/CHIRPS/PENTAD"</span>)<span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Define a function to calculate and export the annual cumulative precipitation</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">exportYearlyPrecipitation</span>(year) {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Create the date range</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> startDate <span class="op">=</span> ee<span class="op">.</span><span class="at">Date</span><span class="op">.</span><span class="fu">fromYMD</span>(year<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> endDate <span class="op">=</span> startDate<span class="op">.</span><span class="fu">advance</span>(<span class="dv">1</span><span class="op">,</span> <span class="st">'year'</span>)<span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Filter the dataset and compute the total precipitation for the year</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> yearlyPrecipitation <span class="op">=</span> dataset<span class="op">.</span><span class="fu">filterDate</span>(startDate<span class="op">,</span> endDate)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                                   <span class="op">.</span><span class="fu">select</span>(<span class="st">'precipitation'</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                                   <span class="op">.</span><span class="fu">sum</span>()  <span class="co">// Compute annual total precipitation</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>                                   <span class="op">.</span><span class="fu">clip</span>(roi<span class="op">.</span><span class="fu">geometry</span>()<span class="op">.</span><span class="fu">bounds</span>())<span class="op">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Export the result to Google Drive</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">image</span><span class="op">:</span> yearlyPrecipitation<span class="op">,</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">description</span><span class="op">:</span> <span class="st">'Pre'</span> <span class="op">+</span> year<span class="op">,</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">scale</span><span class="op">:</span> <span class="dv">5000</span><span class="op">,</span>  <span class="co">// CHIRPS resolution (~5.5 km), adjustable</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">// Loop to compute annual cumulative precipitation for the years 2000-2024</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">var</span> year <span class="op">=</span> <span class="dv">2000</span><span class="op">;</span> year <span class="op">&lt;=</span> <span class="dv">2024</span><span class="op">;</span> year<span class="op">++</span>) {</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exportYearlyPrecipitation</span>(year)<span class="op">;</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The GEE code link: <a href="https://code.earthengine.google.com/e8b09a65c7d506243e0895d7b6af4e41" class="uri">https://code.earthengine.google.com/e8b09a65c7d506243e0895d7b6af4e41</a> .</p>
 
 
 <!-- -->
@@ -753,62 +900,169 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Remote sensing data collection</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## Define study area</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="in">```{r fig-studyarea, echo=FALSE}</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="in">#| fig.cap: The location of study area, West Daly, in Australia</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::include_graphics("figures/study_area.jpg")</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">## Collecting bushfire data</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>This code is designed to compute and export the annual burned area from the MODIS MCD64A1 dataset using Google Earth Engine (GEE).</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load the MODIS MCD64A1 burned area dataset from GEE.</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Define a function to clip and export burned area data by year.</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Set a time range (January 1st to December 31st of the given year).</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Filter the dataset for the selected year and extract the burned area information.</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="ss">5.  </span>Apply an aggregation method (e.g., mean) to summarize burned area data.</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="ss">6.  </span>Clip the data to the Region of Interest (ROI).</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="ss">7.  </span>Export the processed burned area data to Google Drive as a GeoTIFF.</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="ss">8.  </span>Loop through the desired years (2023-2024) and execute the function.</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="in">```js</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the MODIS MCD64A1 dataset</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"MODIS/061/MCD64A1"</span>)<span class="op">;</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">// Define a function to clip the dataset and export it by year</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">exportYearlyBurnedArea</span>(year) {</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Create a date range for the specific year</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> startDate <span class="op">=</span> ee<span class="op">.</span><span class="at">Date</span><span class="op">.</span><span class="fu">fromYMD</span>(year<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">;</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> endDate <span class="op">=</span> startDate<span class="op">.</span><span class="fu">advance</span>(<span class="dv">1</span><span class="op">,</span> <span class="st">'year'</span>)<span class="op">;</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Filter the dataset for the specific year and clip to the ROI</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> yearlyBurnedArea <span class="op">=</span> dataset<span class="op">.</span><span class="fu">filterDate</span>(startDate<span class="op">,</span> endDate)</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>                                <span class="op">.</span><span class="fu">select</span>(<span class="st">'BurnDate'</span>)</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>                                <span class="op">.</span><span class="fu">mean</span>()  <span class="co">// Or use another appropriate aggregation method</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>                                <span class="op">.</span><span class="fu">clip</span>(roi<span class="op">.</span><span class="fu">geometry</span>()<span class="op">.</span><span class="fu">bounds</span>())<span class="op">;</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Export the processed data</span></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="dt">image</span><span class="op">:</span> yearlyBurnedArea<span class="op">,</span></span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="dt">description</span><span class="op">:</span> <span class="st">'BurnedArea_'</span> <span class="op">+</span> year<span class="op">,</span></span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="dt">scale</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span>  <span class="co">// Adjust resolution as needed</span></span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>The GEE code link: <span class="ot">&lt;https://code.earthengine.google.com/c4c9731308de7f49c6e468c3daa8cb03&gt;</span> .</span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="fu">## Collecting climate data</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Remote sensing data collection</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## Define study area</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="in">```{r fig-studyarea, echo=FALSE}</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="in">#| fig.cap: The location of study area, West Daly, in Australia</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::include_graphics("figures/study_area.jpg")</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">## Collecting bushfire data</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>This code is designed to compute and export the annual burned area from the MODIS MCD64A1 dataset using Google Earth Engine (GEE).</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load the MODIS MCD64A1 burned area dataset from GEE.</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Define a function to clip and export burned area data by year.</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Set a time range (January 1st to December 31st of the given year).</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Filter the dataset for the selected year and extract the burned area information.</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="ss">5.  </span>Apply an aggregation method (e.g., mean) to summarize burned area data.</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="ss">6.  </span>Clip the data to the Region of Interest (ROI).</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="ss">7.  </span>Export the processed burned area data to Google Drive as a GeoTIFF.</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="ss">8.  </span>Loop through the desired years (2023-2024) and execute the function.</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="in">```js</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the MODIS MCD64A1 dataset</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"MODIS/061/MCD64A1"</span>)<span class="op">;</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">// Define a function to clip the dataset and export it by year</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">exportYearlyBurnedArea</span>(year) {</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Create a date range for the specific year</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> startDate <span class="op">=</span> ee<span class="op">.</span><span class="at">Date</span><span class="op">.</span><span class="fu">fromYMD</span>(year<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">;</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> endDate <span class="op">=</span> startDate<span class="op">.</span><span class="fu">advance</span>(<span class="dv">1</span><span class="op">,</span> <span class="st">'year'</span>)<span class="op">;</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Filter the dataset for the specific year and clip to the ROI</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> yearlyBurnedArea <span class="op">=</span> dataset<span class="op">.</span><span class="fu">filterDate</span>(startDate<span class="op">,</span> endDate)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>                                <span class="op">.</span><span class="fu">select</span>(<span class="st">'BurnDate'</span>)</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>                                <span class="op">.</span><span class="fu">mean</span>()  <span class="co">// Or use another appropriate aggregation method</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>                                <span class="op">.</span><span class="fu">clip</span>(roi<span class="op">.</span><span class="fu">geometry</span>()<span class="op">.</span><span class="fu">bounds</span>())<span class="op">;</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Export the processed data</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="dt">image</span><span class="op">:</span> yearlyBurnedArea<span class="op">,</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="dt">description</span><span class="op">:</span> <span class="st">'BurnedArea_'</span> <span class="op">+</span> year<span class="op">,</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="dt">scale</span><span class="op">:</span> <span class="dv">500</span><span class="op">,</span>  <span class="co">// Adjust resolution as needed</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co">// Loop through and export data for the years 2000 to 2023</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">var</span> year <span class="op">=</span> <span class="dv">2023</span><span class="op">;</span> year <span class="op">&lt;=</span> <span class="dv">2024</span><span class="op">;</span> year<span class="op">++</span>) {</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exportYearlyBurnedArea</span>(year)<span class="op">;</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>The GEE code link: <span class="ot">&lt;https://code.earthengine.google.com/c4c9731308de7f49c6e468c3daa8cb03&gt;</span> .</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## Collecting climate data</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Temperature**</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>This code is designed to compute and export the annual mean temperature from the ERA5-Land Hourly Temperature dataset using GEE.</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load ERA5 hourly temperature data from Google Earth Engine.</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Define a function to compute the annual mean temperature.</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Set a time range (January 1st to December 31st of the given year).</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Filter the dataset for the given year and compute the mean temperature.</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a><span class="ss">5.  </span>Convert temperature from Kelvin to Celsius.</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a><span class="ss">6.  </span>Clip the data to the ROI.</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a><span class="ss">7.  </span>Export the processed temperature data to Google Drive as a GeoTIFF.</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a><span class="ss">8.  </span>Loop through the desired years and execute the function.</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a><span class="in">```js</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the ERA5 daily temperature dataset</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"ECMWF/ERA5_LAND/HOURLY"</span>)<span class="op">;</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a><span class="co">// Define a function to calculate and export the annual mean temperature</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">exportYearlyTemperature</span>(year) {</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Create the date range</span></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> startDate <span class="op">=</span> ee<span class="op">.</span><span class="at">Date</span><span class="op">.</span><span class="fu">fromYMD</span>(year<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">;</span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> endDate <span class="op">=</span> startDate<span class="op">.</span><span class="fu">advance</span>(<span class="dv">1</span><span class="op">,</span> <span class="st">'year'</span>)<span class="op">;</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Filter the dataset and compute the annual mean temperature (unit: K)</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> yearlyTemperature <span class="op">=</span> dataset<span class="op">.</span><span class="fu">filterDate</span>(startDate<span class="op">,</span> endDate)</span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">.</span><span class="fu">select</span>(<span class="st">'temperature_2m'</span>)</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">.</span><span class="fu">mean</span>()  <span class="co">// Compute annual mean temperature</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)  <span class="co">// Convert to Celsius</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">.</span><span class="fu">clip</span>(roi<span class="op">.</span><span class="fu">geometry</span>()<span class="op">.</span><span class="fu">bounds</span>())<span class="op">;</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Export the result to Google Drive</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>  Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>    <span class="dt">image</span><span class="op">:</span> yearlyTemperature<span class="op">,</span></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>    <span class="dt">description</span><span class="op">:</span> <span class="st">'Tem'</span> <span class="op">+</span> year<span class="op">,</span></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>    <span class="dt">scale</span><span class="op">:</span> <span class="dv">5000</span><span class="op">,</span>  <span class="co">// ERA5 resolution, recommended 5km (5000m)</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>    <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>    <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a><span class="co">// Loop to calculate the annual mean temperature for the years 2000-2024</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">var</span> year <span class="op">=</span> <span class="dv">2002</span><span class="op">;</span> year <span class="op">&lt;=</span> <span class="dv">2002</span><span class="op">;</span> year<span class="op">++</span>) {</span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exportYearlyTemperature</span>(year)<span class="op">;</span></span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>The GEE code link: <span class="ot">&lt;https://code.earthengine.google.com/5a7f743bb1d0bd174f1d199e26dc4d61&gt;</span> .</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Precipitation**</span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>This code is designed to compute and export the annual cumulative precipitation from the CHIRPS 5-day interval precipitation dataset using GEE.</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load CHIRPS 5-day interval precipitation data from Google Earth Engine.  </span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Define a function to compute the annual cumulative precipitation.  </span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Set a time range (January 1st to December 31st of the given year).  </span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Filter the dataset for the given year and compute the total precipitation.  </span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a><span class="ss">5.  </span>Clip the data** to the ROI.  </span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a><span class="ss">6.  </span>Export the processed precipitation data to Google Drive as a GeoTIFF.  </span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a><span class="ss">7.  </span>Loop through the desired years (2000-2024) and execute the function.</span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a><span class="in">```js</span></span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the CHIRPS dataset (5-day interval precipitation)</span></span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"UCSB-CHG/CHIRPS/PENTAD"</span>)<span class="op">;</span></span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a><span class="co">// Define a function to calculate and export the annual cumulative precipitation</span></span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">exportYearlyPrecipitation</span>(year) {</span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Create the date range</span></span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> startDate <span class="op">=</span> ee<span class="op">.</span><span class="at">Date</span><span class="op">.</span><span class="fu">fromYMD</span>(year<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">;</span></span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> endDate <span class="op">=</span> startDate<span class="op">.</span><span class="fu">advance</span>(<span class="dv">1</span><span class="op">,</span> <span class="st">'year'</span>)<span class="op">;</span></span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Filter the dataset and compute the total precipitation for the year</span></span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> yearlyPrecipitation <span class="op">=</span> dataset<span class="op">.</span><span class="fu">filterDate</span>(startDate<span class="op">,</span> endDate)</span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a>                                   <span class="op">.</span><span class="fu">select</span>(<span class="st">'precipitation'</span>)</span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a>                                   <span class="op">.</span><span class="fu">sum</span>()  <span class="co">// Compute annual total precipitation</span></span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a>                                   <span class="op">.</span><span class="fu">clip</span>(roi<span class="op">.</span><span class="fu">geometry</span>()<span class="op">.</span><span class="fu">bounds</span>())<span class="op">;</span></span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Export the result to Google Drive</span></span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a>  Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a>    <span class="dt">image</span><span class="op">:</span> yearlyPrecipitation<span class="op">,</span></span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a>    <span class="dt">description</span><span class="op">:</span> <span class="st">'Pre'</span> <span class="op">+</span> year<span class="op">,</span></span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a>    <span class="dt">scale</span><span class="op">:</span> <span class="dv">5000</span><span class="op">,</span>  <span class="co">// CHIRPS resolution (~5.5 km), adjustable</span></span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a>    <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a>    <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-157"><a href="#cb4-157" aria-hidden="true" tabindex="-1"></a><span class="co">// Loop to compute annual cumulative precipitation for the years 2000-2024</span></span>
+<span id="cb4-158"><a href="#cb4-158" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">var</span> year <span class="op">=</span> <span class="dv">2000</span><span class="op">;</span> year <span class="op">&lt;=</span> <span class="dv">2024</span><span class="op">;</span> year<span class="op">++</span>) {</span>
+<span id="cb4-159"><a href="#cb4-159" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exportYearlyPrecipitation</span>(year)<span class="op">;</span></span>
+<span id="cb4-160"><a href="#cb4-160" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-161"><a href="#cb4-161" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-162"><a href="#cb4-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-163"><a href="#cb4-163" aria-hidden="true" tabindex="-1"></a>The GEE code link: <span class="ot">&lt;https://code.earthengine.google.com/e8b09a65c7d506243e0895d7b6af4e41&gt;</span> .</span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
