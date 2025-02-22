@@ -86,3 +86,129 @@ print("Linear regression calculation completed, results saved.")
 ```
 
 ## Temporal correlation analysis between bushfire and climate
+
+::: {.callout-tip title="Aim"}
+This code is designed to compute the Spearman correlation coefficients and p-values between burned area and precipitation/temperature for each grid cell over the years 2000-2024, and save the results as a new shapefile.
+:::
+
+::: {.callout-caution title="Description of steps"}
+1.	Load necessary libraries (sf for spatial data and dplyr for data manipulation).
+2.	Read the shapefile containing burned area, precipitation, and temperature data.
+3.	Extract column names corresponding to:
+4.	Burned area (BA_2000 to BA_2024)
+5.	Precipitation (Pre2000 to Pre2024)
+6.	Temperature (Tem2000 to Tem2024)
+7.	Compute the Spearman correlation for each grid cell:
+8.	Burned area vs. Precipitation (cor_BA_Pre)
+9.	Burned area vs. Temperature (cor_BA_Tem)
+10.	Extract the correlation coefficient (estimate) and p-value (p.value) for statistical significance.
+11.	Save the updated shapefile containing correlation results.
+:::
+
+*Code (R version):*
+
+```r
+# Load necessary libraries
+library(sf)
+library(dplyr)
+
+# Read the shapefile
+grid <- st_read("/your_path_here/grid5_Sta.shp")
+
+# Extract column names (ensure column order matches years)
+ba_cols <- paste0("BA_", 2000:2024)   # Burned area columns
+pre_cols <- paste0("Pre", 2000:2024)  # Precipitation columns
+tem_cols <- paste0("Tem", 2000:2024)  # Temperature columns
+
+# Compute the Spearman correlation and p-values for each grid cell
+grid <- grid %>%
+  rowwise() %>%
+  mutate(
+    cor_BA_Pre = cor.test(as.numeric(c_across(all_of(ba_cols))), 
+                          as.numeric(c_across(all_of(pre_cols))), 
+                          method = "spearman", use = "complete.obs")$estimate,
+    p_BA_Pre = cor.test(as.numeric(c_across(all_of(ba_cols))), 
+                        as.numeric(c_across(all_of(pre_cols))), 
+                        method = "spearman", use = "complete.obs")$p.value,
+    
+    cor_BA_Tem = cor.test(as.numeric(c_across(all_of(ba_cols))), 
+                          as.numeric(c_across(all_of(tem_cols))), 
+                          method = "spearman", use = "complete.obs")$estimate,
+    p_BA_Tem = cor.test(as.numeric(c_across(all_of(ba_cols))), 
+                        as.numeric(c_across(all_of(tem_cols))), 
+                        method = "spearman", use = "complete.obs")$p.value
+  ) %>%
+  ungroup()
+
+# Save the new shapefile
+st_write(grid, "/your_path_here/grid5_Cor.shp", delete_layer = TRUE)
+```
+
+*Code (Python version):*
+
+```python
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+from scipy.stats import pearsonr
+
+# Read the Shapefile
+gdf = gpd.read_file("/your_path_here/grid5_Sta_slope.shp")
+
+# Extract column names for the time series
+years = list(range(2000, 2025))  # 2000 to 2024
+ba_columns = [f"BA_{year}" for year in years]
+tem_columns = [f"Tem{year}" for year in years]
+pre_columns = [f"Pre{year}" for year in years]
+
+# Ensure all relevant columns exist in the dataset
+ba_columns = [col for col in ba_columns if col in gdf.columns]
+tem_columns = [col for col in tem_columns if col in gdf.columns]
+pre_columns = [col for col in pre_columns if col in gdf.columns]
+
+# Check if any required columns are missing
+if not ba_columns or not tem_columns or not pre_columns:
+    raise ValueError("BA, Tem, or Pre-related columns are missing. Please check the data file.")
+
+print("BA Columns:", ba_columns)
+print("Tem Columns:", tem_columns)
+print("Pre Columns:", pre_columns)
+
+# Ensure all data columns are numeric
+for col in ba_columns + tem_columns + pre_columns:
+    gdf[col] = pd.to_numeric(gdf[col], errors='coerce')
+
+# Function to compute Pearson correlation (excluding zero values)
+def compute_correlation(row, x_columns):
+    ba_values = row[ba_columns].values.astype(float)
+    x_values = row[x_columns].values.astype(float)
+    
+    # Check if arrays are empty
+    if len(ba_values) == 0 or len(x_values) == 0:
+        return np.nan, np.nan
+    
+    # Filter out NaN and zero values
+    mask = (ba_values != 0) & (x_values != 0) & ~np.isnan(ba_values) & ~np.isnan(x_values)
+    ba_filtered = ba_values[mask]
+    x_filtered = x_values[mask]
+    
+    # Ensure both arrays have at least two valid values
+    if len(ba_filtered) < 2 or len(x_filtered) < 2:
+        return np.nan, np.nan
+    
+    correlation, p_value = pearsonr(ba_filtered, x_filtered)
+    return correlation, p_value
+
+# Compute Pearson correlation and significance level between BA and Tem
+gdf[["BA_Tem_corr", "BA_Tem_pval"]] = gdf.apply(lambda row: compute_correlation(row, tem_columns), axis=1, result_type='expand')
+
+# Compute Pearson correlation and significance level between BA and Pre
+gdf[["BA_Pre_corr", "BA_Pre_pval"]] = gdf.apply(lambda row: compute_correlation(row, pre_columns), axis=1, result_type='expand')
+
+# Save the results
+gdf.to_file("/your_path_here/grid5_Sta_corr.shp")
+
+print("Pearson correlation analysis between BA and Tem, as well as BA and Pre, has been completed (excluding zero values). Results saved.")
+```
+
+
