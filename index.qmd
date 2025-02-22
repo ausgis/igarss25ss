@@ -1,0 +1,8 @@
+# Preface {.unnumbered}
+
+**Topic**:Tools for remote sensing and geospatial intelligence analysis: An example of climate impact on bushfire.
+
+::: {.callout-note}
+## Note
+In each section, we will include Tools, Aim, Description of steps, and Code.
+:::

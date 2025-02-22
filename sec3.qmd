@@ -1,0 +1,5 @@
+# Spatial analysis for remote sensing data
+
+## Spatial hotspot identification
+
+## Geographical detector for spatial heterogeneity and factor analysis

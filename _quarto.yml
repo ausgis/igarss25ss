@@ -1,0 +1,69 @@
+project:
+  type: book
+  output-dir: docs
+
+prefer-html: true
+
+book:
+  title: "IEEE IGARSS 2025 Summer School"
+  subtitle: "Training Materials"
+  author:
+    - name: Yongze Song
+      orcid: 0000-0003-3420-9622
+      email: yongze.song@curtin.edu.au
+      url: https://yongzesong.com/
+      affiliations:
+      - name: Curtin University
+        city: Perth
+        country: Australia
+  date: "2025/2/24"
+  # site-url: https://ausgis.github.io/igarss25ss/
+  # repo-url: https://github.com/ausgis/igarss25ss/
+  # repo-branch: main
+  # repo-actions: [edit]
+  chapters:
+    - index.qmd
+    - sec1.qmd
+    - sec2.qmd
+    - sec3.qmd
+    - sec4.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+knitr:
+  opts_chunk: 
+    collapse: true
+    comment: "#" 
+    R.options:
+      knitr.graphics.auto_pdf: true
+      dplyr.print_min: 6
+      dplyr.print_max: 6
+      stars.crs: 17
+      digits: 3
+
+format:
+  html:
+    number-sections: true
+    number-depth: 3
+    theme: cosmo
+    code-fold: false
+    code-summary: "Code"
+    code-tools: true
+    code-link: true
+    knitr:
+      opts_chunk:
+        out.width: 100%
+        R.options:
+          width: 68
+
+# format:
+#   html:
+#     theme:
+#       - cosmo
+#       - brand
+#   pdf:
+#     documentclass: scrreprt
+
+
+

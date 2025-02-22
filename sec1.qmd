@@ -1,0 +1,8 @@
+# Remote sensing data collection
+
+## Define study area
+
+## Collecting bushfire data
+
+## Collecting climate data
+

@@ -1,0 +1,11 @@
+# Geospatial artificial intelligence (GeoAI) for remote sensing data
+
+## GeoAI for spatial prediction of future bushfire 
+
+### Future climate data collection
+
+### GeoAI modelling
+
+### Spatial prediction
+
+### Analysing future bushfire patterns
