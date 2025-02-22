@@ -1,0 +1,102 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "IEEE IGARSS 2025 Summer School",
+    "section": "",
+    "text": "Preface\nTopic:Tools for remote sensing and geospatial intelligence analysis: An example of climate impact on bushfire.\n\n\n\n\n\n\nNote\n\n\n\nIn each section, we will include Tools, Aim, Description of steps, and Code.",
+    "crumbs": [
+      "Preface"
+    ]
+  },
+  {
+    "objectID": "sec1.html",
+    "href": "sec1.html",
+    "title": "1  Remote sensing data collection",
+    "section": "",
+    "text": "1.1 Define study area",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Remote sensing data collection</span>"
+    ]
+  },
+  {
+    "objectID": "sec1.html#collecting-bushfire-data",
+    "href": "sec1.html#collecting-bushfire-data",
+    "title": "1  Remote sensing data collection",
+    "section": "1.2 Collecting bushfire data",
+    "text": "1.2 Collecting bushfire data",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Remote sensing data collection</span>"
+    ]
+  },
+  {
+    "objectID": "sec1.html#collecting-climate-data",
+    "href": "sec1.html#collecting-climate-data",
+    "title": "1  Remote sensing data collection",
+    "section": "1.3 Collecting climate data",
+    "text": "1.3 Collecting climate data",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Remote sensing data collection</span>"
+    ]
+  },
+  {
+    "objectID": "sec2.html",
+    "href": "sec2.html",
+    "title": "2  Temporal analysis for remote sensing data",
+    "section": "",
+    "text": "2.1 Temporal trend analysis for bushfire",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Temporal analysis for remote sensing data</span>"
+    ]
+  },
+  {
+    "objectID": "sec2.html#temporal-correlation-analysis-between-bushfire-and-climate",
+    "href": "sec2.html#temporal-correlation-analysis-between-bushfire-and-climate",
+    "title": "2  Temporal analysis for remote sensing data",
+    "section": "2.2 Temporal correlation analysis between bushfire and climate",
+    "text": "2.2 Temporal correlation analysis between bushfire and climate",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Temporal analysis for remote sensing data</span>"
+    ]
+  },
+  {
+    "objectID": "sec3.html",
+    "href": "sec3.html",
+    "title": "3  Spatial analysis for remote sensing data",
+    "section": "",
+    "text": "3.1 Spatial hotspot identification",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Spatial analysis for remote sensing data</span>"
+    ]
+  },
+  {
+    "objectID": "sec3.html#geographical-detector-for-spatial-heterogeneity-and-factor-analysis",
+    "href": "sec3.html#geographical-detector-for-spatial-heterogeneity-and-factor-analysis",
+    "title": "3  Spatial analysis for remote sensing data",
+    "section": "3.2 Geographical detector for spatial heterogeneity and factor analysis",
+    "text": "3.2 Geographical detector for spatial heterogeneity and factor analysis",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Spatial analysis for remote sensing data</span>"
+    ]
+  },
+  {
+    "objectID": "sec4.html",
+    "href": "sec4.html",
+    "title": "4  Geospatial artificial intelligence (GeoAI) for remote sensing data",
+    "section": "",
+    "text": "4.1 GeoAI for spatial prediction of future bushfire",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Geospatial artificial intelligence (GeoAI) for remote sensing data</span>"
+    ]
+  },
+  {
+    "objectID": "sec4.html#geoai-for-spatial-prediction-of-future-bushfire",
+    "href": "sec4.html#geoai-for-spatial-prediction-of-future-bushfire",
+    "title": "4  Geospatial artificial intelligence (GeoAI) for remote sensing data",
+    "section": "",
+    "text": "4.1.1 Future climate data collection\n\n\n4.1.2 GeoAI modelling\n\n\n4.1.3 Spatial prediction\n\n\n4.1.4 Analysing future bushfire patterns",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Geospatial artificial intelligence (GeoAI) for remote sensing data</span>"
+    ]
+  }
+]
