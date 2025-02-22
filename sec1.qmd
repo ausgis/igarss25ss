@@ -9,5 +9,10 @@ knitr::include_graphics("figures/study_area.jpg")
 
 ## Collecting bushfire data
 
+::: {.callout-tip title="Aim"}
+This code is designed to compute and export the annual burned area from the MODIS MCD64A1 dataset using Google Earth Engine (GEE).
+:::
+
+
 ## Collecting climate data
 

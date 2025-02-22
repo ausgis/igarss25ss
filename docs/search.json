@@ -24,7 +24,7 @@
     "href": "sec1.html#collecting-bushfire-data",
     "title": "\n1  Remote sensing data collection\n",
     "section": "\n1.2 Collecting bushfire data",
-    "text": "1.2 Collecting bushfire data",
+    "text": "1.2 Collecting bushfire data\n\n\n\n\n\n\nAim\n\n\n\nThis code is designed to compute and export the annual burned area from the MODIS MCD64A1 dataset using Google Earth Engine (GEE).",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Remote sensing data collection</span>"
     ]
@@ -97,6 +97,16 @@
     "text": "4.1.1 Future climate data collection\n\n\n4.1.2 GeoAI modelling\n\n\n4.1.3 Spatial prediction\n\n\n4.1.4 Analysing future bushfire patterns",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Geospatial artificial intelligence (GeoAI) for remote sensing data</span>"
+    ]
+  },
+  {
+    "objectID": "sec1.html#aim",
+    "href": "sec1.html#aim",
+    "title": "\n1  Remote sensing data collection\n",
+    "section": "\n1.3 🎯 Aim",
+    "text": "1.3 🎯 Aim\nThis code is designed to compute and export the annual burned area from the MODIS MCD64A1 dataset using Google Earth Engine (GEE).",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Remote sensing data collection</span>"
     ]
   }
 ]

@@ -44,13 +44,13 @@ knitr:
 
 format:
   html:
-    number-sections: true
     number-depth: 3
     theme: cosmo
     code-fold: false
     code-summary: "Code"
     code-tools: true
     code-link: true
+    css: styles.css
     knitr:
       opts_chunk:
         out.width: 100%
