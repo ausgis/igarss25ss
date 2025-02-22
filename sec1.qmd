@@ -13,6 +13,45 @@ knitr::include_graphics("figures/study_area.jpg")
 This code is designed to compute and export the annual burned area from the MODIS MCD64A1 dataset using Google Earth Engine (GEE).
 :::
 
+::: {.callout-caution title="Description of steps"}
+1.	Load the MODIS MCD64A1 burned area dataset from GEE.
+2.	Define a function to clip and export burned area data by year.
+3.	Set a time range (January 1st to December 31st of the given year).
+4.	Filter the dataset for the selected year and extract the burned area information.
+5.	Apply an aggregation method (e.g., mean) to summarize burned area data.
+6.	Clip the data to the Region of Interest (ROI).
+7.	Export the processed burned area data to Google Drive as a GeoTIFF.
+8.	Loop through the desired years (2023-2024) and execute the function.
+:::
+
+```js
+// Load the MODIS MCD64A1 dataset
+var dataset = ee.ImageCollection("MODIS/061/MCD64A1");
+
+// Define a function to clip the dataset and export it by year
+function exportYearlyBurnedArea(year) {
+  // Create a date range for the specific year
+  var startDate = ee.Date.fromYMD(year, 1, 1);
+  var endDate = startDate.advance(1, 'year');
+
+  // Filter the dataset for the specific year and clip to the ROI
+  var yearlyBurnedArea = dataset.filterDate(startDate, endDate)
+                                .select('BurnDate')
+                                .mean()  // Or use another appropriate aggregation method
+                                .clip(roi.geometry().bounds());
+
+  // Export the processed data
+  Export.image.toDrive({
+    image: yearlyBurnedArea,
+    description: 'BurnedArea_' + year,
+    scale: 500,  // Adjust resolution as needed
+    region: roi,
+    fileFormat: 'GeoTIFF'
+  });
+}
+```
+
+The GEE code link: <https://code.earthengine.google.com/c4c9731308de7f49c6e468c3daa8cb03> .
 
 ## Collecting climate data
 
