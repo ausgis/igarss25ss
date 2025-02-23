@@ -4,6 +4,66 @@
 
 ### Future climate data collection
 
+::: {.callout-tip title="Aim"}
+We separately collected CMIP6 datasets of temperature and precipitation for 2024 and 2030. The 2024 data will be used for model training, followed by predicting bushfire burn areas for 2030.
+:::
+
+::: {.callout-caution title="Description of steps"}
+1.	Load NEX-GDDP-CMIP6 data from Google Earth Engine.  
+2.	Aggregate and export the temperature and precipitation data for 2024.  
+3.	Aggregate and export the temperature and precipitation data for 2030.  
+:::
+
+```js
+// 加载 CMIP6 数据集
+var dataset = ee.ImageCollection("NASA/NEX/GDDP-CMIP6")
+  .filter(ee.Filter.eq('model', 'ACCESS-CM2'))  // 选择模型
+  .filter(ee.Filter.eq('experiment', 'ssp585'))  // 选择 SSP 情景
+  .filterBounds(roi);  // 限制在研究区域
+    // 选择 2050 年数据
+ 
+
+// 提取变量
+var temperature = dataset.select('tas');  // 日均气温(单位: K)
+var precipitation = dataset.select('pr');  // 日降水量 (单位: kg m-2 s-1)
+
+
+var tem24 = temperature.filter(ee.Filter.calendarRange(2024, 2024, 'year')).mean().clip(roi).subtract(273.15);  
+var tem30 = temperature.filter(ee.Filter.calendarRange(2030, 2030, 'year')).mean().clip(roi).subtract(273.15); 
+var pre24 = precipitation.filter(ee.Filter.calendarRange(2024, 2024, 'year')).sum().clip(roi).multiply(86400).multiply(365);  
+var pre30 = precipitation.filter(ee.Filter.calendarRange(2030, 2030, 'year')).sum().clip(roi).multiply(86400).multiply(365);  
+
+
+Export.image.toDrive({
+  image: tem24,
+  description: 'tem24',
+  scale: 30000,
+  region: roi,
+  fileFormat: 'GeoTIFF'
+});
+Export.image.toDrive({
+  image: tem30,
+  description: 'tem30',
+  scale: 30000,
+  region: roi,
+  fileFormat: 'GeoTIFF'
+});
+Export.image.toDrive({
+  image: pre24,
+  description: 'pre24',
+  scale: 30000,
+  region: roi,
+  fileFormat: 'GeoTIFF'
+});
+Export.image.toDrive({
+  image: pre30,
+  description: 'pre30',
+  scale: 30000,
+  region: roi,
+  fileFormat: 'GeoTIFF'
+});
+```
+
 ### GeoAI modelling
 
 ### Spatial prediction
