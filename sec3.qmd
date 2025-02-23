@@ -111,7 +111,7 @@ This step is designed to identify the climatic driving factors of bushfire burne
 :::
 
 ```{r fig-opgd, cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
-#| fig.cap: "Climatic driving factors of bushfire burned area"dd
+#| fig.cap: "Climatic driving factors of bushfire burned area"
 #| code-fold: true
 #| fig.height: 3.5
 library(sf)
