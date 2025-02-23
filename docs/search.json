@@ -62,9 +62,9 @@
   {
     "objectID": "sec3.html",
     "href": "sec3.html",
-    "title": "3  Spatial analysis for remote sensing data",
+    "title": "\n3  Spatial analysis for remote sensing data\n",
     "section": "",
-    "text": "3.1 Spatial hotspot identification",
+    "text": "3.1 Spatial hotspot identification\nWe demonstrate a spatial analysis workflow using the 2024 climate and bushfire data as an example.\nWe will perform spatial hot spot and cold spot analysis using the rgeoda package and conduct spatial stratified heterogeneity analysis using the gdverse package.\nYou can install the required packages using the following commands in the R console:\nNow we read the data to R and perform some basic data exploration：",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Spatial analysis for remote sensing data</span>"
     ]
@@ -72,8 +72,8 @@
   {
     "objectID": "sec3.html#geographical-detector-for-spatial-heterogeneity-and-factor-analysis",
     "href": "sec3.html#geographical-detector-for-spatial-heterogeneity-and-factor-analysis",
-    "title": "3  Spatial analysis for remote sensing data",
-    "section": "3.2 Geographical detector for spatial heterogeneity and factor analysis",
+    "title": "\n3  Spatial analysis for remote sensing data\n",
+    "section": "\n3.2 Geographical detector for spatial heterogeneity and factor analysis",
     "text": "3.2 Geographical detector for spatial heterogeneity and factor analysis",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Spatial analysis for remote sensing data</span>"
