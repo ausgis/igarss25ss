@@ -64,7 +64,7 @@ This step is designed to identify the spatial hot and cold spots of bushfire bur
 :::
 
 ::: {.callout-caution title="Description of steps"}
-1.	Load necessary libraries (sf for spatial data,rgeoda for spatial analysis, ggplot2 for data visualization).
+1.	Load necessary libraries (sf for spatial data, rgeoda for spatial analysis, ggplot2 for data visualization).
 2.	Read the shapefile containing burned area and climate data.
 3.	Create the spatial weight matrix.
 4.	Run spatial hotspot analysis.
@@ -98,3 +98,27 @@ ggplot(burnedarea) +
 ```
 
 ## Geographical detector for spatial heterogeneity and factor analysis
+
+::: {.callout-tip title="Aim"}
+This step is designed to identify the climatic driving factors of bushfire burned area. We will use the **gdverse** package to analyze the power of determinant of climatic drivers on bushfire burned area based on the optimal parameter geographical detector model.
+:::
+
+::: {.callout-caution title="Description of steps"}
+1.	Load necessary libraries (sf for spatial data and gdverse for geographical detector analysis).
+2.	Read the shapefile containing burned area and climate data.
+3.	Run the OPGD model.
+4.	Plot the result.
+:::
+
+```{r fig-opgd, cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
+#| fig.cap: "Climatic driving factors of bushfire burned area"
+#| code-fold: true
+#| fig.height: 3.5
+library(sf)
+library(gdverse)
+
+burnedarea = read_sf('./data/3. Spatial analysis/burnedarea_2024.shp')
+opgd.m = opgd(burnedarea~tem+pre, data = burnedarea, discnum = 3:15)
+opgd.m
+plot(opgd.m)
+```
