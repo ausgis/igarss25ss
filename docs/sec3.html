@@ -195,7 +195,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header><p>We demonstrate a spatial analysis workflow using the 2024 climate and bushfire data as an example.</p>
 <p>We will perform spatial hot spot and cold spot analysis using the <strong>rgeoda</strong> package and conduct spatial stratified heterogeneity analysis using the <strong>gdverse</strong> package.</p>
 <p>You can install the required packages using the following commands in the R console:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"sf"</span>,<span class="st">"terra"</span>,<span class="st">"rgeoda"</span>,<span class="st">"gdverse"</span><span class="op">)</span>,dep <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"sf"</span>,<span class="st">"terra"</span>,<span class="st">"tidyverse"</span>,<span class="st">"rgeoda"</span>,<span class="st">"gdverse"</span><span class="op">)</span>,dep <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now we read the data to R and perform some basic data exploration：</p>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/">terra</a></span><span class="op">)</span></span>
@@ -244,15 +244,16 @@ Figure&nbsp;3.1: Maps of the 2024 climate and bushfire data
 </div>
 </div>
 </div>
-<p>Since the row and column numbers of the three rasters are not aligned, we first convert the non-NA cells of the temperature raster into a spatial polygon format, and then perform zonal statistics on temperature and bushfire data:</p>
+<p>Since the row and column numbers of the three rasters are not aligned, we first convert the non-NA cells of the temperature raster into a spatial polygon format. Then, we perform zonal statistics on temperature and wildfire data, and finally, remove all NA values corresponding to the three variables.</p>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">tem.polygon</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/as.polygons.html">as.polygons</a></span><span class="op">(</span><span class="va">tem</span>,aggregate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html">names</a></span><span class="op">(</span><span class="va">tem.polygon</span><span class="op">)</span> <span class="op">=</span> <span class="st">"tem"</span></span>
 <span><span class="va">tem.polygon</span><span class="op">$</span><span class="va">pre</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/zonal.html">zonal</a></span><span class="op">(</span><span class="va">pre</span>,<span class="va">tem.polygon</span>,fun <span class="op">=</span> <span class="st">"mean"</span>,na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">tem.polygon</span><span class="op">$</span><span class="va">burnedarea</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/zonal.html">zonal</a></span><span class="op">(</span><span class="va">burnedarea</span>,<span class="va">tem.polygon</span>,fun <span class="op">=</span> <span class="st">"sum"</span>,na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span>
-<span><span class="va">burnedarea.sf</span> <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html">st_as_sf</a></span><span class="op">(</span><span class="va">tem.polygon</span><span class="op">)</span></span>
+<span><span class="va">burnedarea.sf</span> <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html">st_as_sf</a></span><span class="op">(</span><span class="va">tem.polygon</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html">if_all</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,\<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">burnedarea.sf</span></span>
-<span><span class="co"># Simple feature collection with 740 features and 3 fields</span></span>
+<span><span class="co"># Simple feature collection with 644 features and 3 fields</span></span>
 <span><span class="co"># Geometry type: POLYGON</span></span>
 <span><span class="co"># Dimension:     XY</span></span>
 <span><span class="co"># Bounding box:  xmin: 129 ymin: -14.9 xmax: 131 ymax: -13.3</span></span>
@@ -262,13 +263,13 @@ Figure&nbsp;3.1: Maps of the 2024 climate and bushfire data
 <span><span class="co"># 1   28 1893       1250 POLYGON ((130 -13.3, 130 -1...</span></span>
 <span><span class="co"># 2   28 1856       1529 POLYGON ((130 -13.3, 130 -1...</span></span>
 <span><span class="co"># 3   28 1888       2203 POLYGON ((130 -13.3, 130 -1...</span></span>
-<span><span class="co"># 4   28 1901        NaN POLYGON ((130 -13.3, 130 -1...</span></span>
-<span><span class="co"># 5   28 1884       1289 POLYGON ((131 -13.3, 131 -1...</span></span>
-<span><span class="co"># 6   28 1865       4247 POLYGON ((131 -13.3, 131 -1...</span></span>
-<span><span class="co"># 7   28 1873       1991 POLYGON ((131 -13.3, 131 -1...</span></span>
-<span><span class="co"># 8   28 1882       3056 POLYGON ((130 -13.3, 130 -1...</span></span>
-<span><span class="co"># 9   28 1871      15835 POLYGON ((130 -13.3, 130 -1...</span></span>
-<span><span class="co"># 10  28 1860       4848 POLYGON ((130 -13.3, 130 -1...</span></span>
+<span><span class="co"># 4   28 1884       1289 POLYGON ((131 -13.3, 131 -1...</span></span>
+<span><span class="co"># 5   28 1865       4247 POLYGON ((131 -13.3, 131 -1...</span></span>
+<span><span class="co"># 6   28 1873       1991 POLYGON ((131 -13.3, 131 -1...</span></span>
+<span><span class="co"># 7   28 1882       3056 POLYGON ((130 -13.3, 130 -1...</span></span>
+<span><span class="co"># 8   28 1871      15835 POLYGON ((130 -13.3, 130 -1...</span></span>
+<span><span class="co"># 9   28 1860       4848 POLYGON ((130 -13.3, 130 -1...</span></span>
+<span><span class="co"># 10  28 1875       5896 POLYGON ((130 -13.3, 130 -1...</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">burnedarea.sf</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -783,7 +784,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>You can install the required packages using the following commands in the R console:</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="in">```r</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"sf"</span>,<span class="st">"terra"</span>,<span class="st">"rgeoda"</span>,<span class="st">"gdverse"</span>),<span class="at">dep =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"sf"</span>,<span class="st">"terra"</span>,<span class="st">"tidyverse"</span>,<span class="st">"rgeoda"</span>,<span class="st">"gdverse"</span>),<span class="at">dep =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>Now we read the data to R and perform some basic data exploration：</span>
@@ -808,7 +809,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="in">par(mfrow = c(1, 1))</span></span>
 <span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>Since the row and column numbers of the three rasters are not aligned, we first convert the non-NA cells of the temperature raster into a spatial polygon format, and then perform zonal statistics on temperature and bushfire data:</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>Since the row and column numbers of the three rasters are not aligned, we first convert the non-NA cells of the temperature raster into a spatial polygon format. Then, we perform zonal statistics on temperature and wildfire data, and finally, remove all NA values corresponding to the three variables.</span>
 <span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="in">```{r fig-map-sf-format, cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}</span></span>
 <span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="in">#| fig.cap: "Maps of the 2024 climate and bushfire data in sf format"</span></span>
@@ -818,23 +819,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="in">names(tem.polygon) = "tem"</span></span>
 <span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="in">tem.polygon$pre = terra::zonal(pre,tem.polygon,fun = "mean",na.rm = TRUE)[,1]</span></span>
 <span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="in">tem.polygon$burnedarea = terra::zonal(burnedarea,tem.polygon,fun = "sum",na.rm = TRUE)[,1]</span></span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="in">burnedarea.sf = sf::st_as_sf(tem.polygon)</span></span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="in">burnedarea.sf</span></span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="in">library(sf)</span></span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="in">plot(burnedarea.sf)</span></span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>save the data to a shapefile:</span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, eval = FALSE}</span></span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="in">sf::write_sf(burnedarea.sf,'./data/3. Spatial analysis/burnedarea_2024.shp',overwrite = TRUE)</span></span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="fu">## Spatial hotspot identification</span></span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## Geographical detector for spatial heterogeneity and factor analysis</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="in">burnedarea.sf = sf::st_as_sf(tem.polygon) |&gt; </span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="in">  dplyr::filter(dplyr::if_all(1:3,\(.x) !is.na(.x)))</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="in">burnedarea.sf</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="in">library(sf)</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="in">plot(burnedarea.sf)</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>save the data to a shapefile:</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, eval = FALSE}</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="in">sf::write_sf(burnedarea.sf,'./data/3. Spatial analysis/burnedarea_2024.shp',overwrite = TRUE)</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="fu">## Spatial hotspot identification</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="fu">## Geographical detector for spatial heterogeneity and factor analysis</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

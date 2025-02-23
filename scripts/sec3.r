@@ -17,7 +17,8 @@ tem.polygon = terra::as.polygons(tem,aggregate = FALSE)
 names(tem.polygon) = "tem"
 tem.polygon$pre = terra::zonal(pre,tem.polygon,fun = "mean",na.rm = TRUE)[,1]
 tem.polygon$burnedarea = terra::zonal(burnedarea,tem.polygon,fun = "sum",na.rm = TRUE)[,1]
-burnedarea.sf = sf::st_as_sf(tem.polygon)
+burnedarea.sf = sf::st_as_sf(tem.polygon) |> 
+  dplyr::filter(dplyr::if_all(1:3,\(.x) !is.na(.x)))
 burnedarea.sf
 
 library(sf)
