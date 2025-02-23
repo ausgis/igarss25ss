@@ -66,4 +66,4 @@ Export.image.toDrive({
 
 ### Spatial prediction
 
-### Analysing future bushfire patterns
+## Analysing future bushfire patterns
