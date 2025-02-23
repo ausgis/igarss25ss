@@ -15,7 +15,7 @@ Now we read the data to R and perform some basic data exploration：
 ```{r fig-data-exploration, cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
 #| fig.cap: "Maps of the 2024 climate and bushfire data"
 #| code-fold: true
-#| fig.height: 4
+#| fig.height: 3.5
 library(terra)
 
 burnedarea = rast('./data/1. Data collection/BurnedArea/BurnedArea_2024.tif')
