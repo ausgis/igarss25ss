@@ -12,3 +12,15 @@ plot(burnedarea, main = 'Burned area')
 plot(pre, main = 'Precipitation')
 plot(tem, main = 'Temperature')
 par(mfrow = c(1, 1))
+
+tem.polygon = terra::as.polygons(tem,aggregate = FALSE)
+names(tem.polygon) = "tem"
+tem.polygon$pre = terra::zonal(pre,tem.polygon,fun = "mean",na.rm = TRUE)[,1]
+tem.polygon$burnedarea = terra::zonal(burnedarea,tem.polygon,fun = "sum",na.rm = TRUE)[,1]
+burnedarea.sf = sf::st_as_sf(tem.polygon)
+burnedarea.sf
+
+library(sf)
+plot(burnedarea.sf)
+
+# sf::write_sf(burnedarea.sf,'./data/3. Spatial analysis/burnedarea_2024.shp',overwrite = TRUE)

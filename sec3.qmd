@@ -32,6 +32,29 @@ plot(tem, main = 'Temperature')
 par(mfrow = c(1, 1))
 ```
 
+Since the row and column numbers of the three rasters are not aligned, we first convert the non-NA cells of the temperature raster into a spatial polygon format, and then perform zonal statistics on temperature and bushfire data:
+
+```{r fig-map-sf-format, cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
+#| fig.cap: "Maps of the 2024 climate and bushfire data in sf format"
+#| code-fold: true
+#| fig.height: 3.5
+tem.polygon = terra::as.polygons(tem,aggregate = FALSE)
+names(tem.polygon) = "tem"
+tem.polygon$pre = terra::zonal(pre,tem.polygon,fun = "mean",na.rm = TRUE)[,1]
+tem.polygon$burnedarea = terra::zonal(burnedarea,tem.polygon,fun = "sum",na.rm = TRUE)[,1]
+burnedarea.sf = sf::st_as_sf(tem.polygon)
+burnedarea.sf
+
+library(sf)
+plot(burnedarea.sf)
+```
+
+save the data to a shapefile:
+
+```{r, eval = FALSE}
+#| code-fold: true
+sf::write_sf(burnedarea.sf,'./data/3. Spatial analysis/burnedarea_2024.shp',overwrite = TRUE)
+```
 
 ## Spatial hotspot identification
 
