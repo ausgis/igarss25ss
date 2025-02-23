@@ -1,0 +1,12 @@
+<PAMDataset>
+  <PAMRasterBand band="1">
+    <Description>BurnDate</Description>
+    <Metadata>
+      <MDI key="STATISTICS_MAXIMUM">337</MDI>
+      <MDI key="STATISTICS_MEAN">178.08289907938</MDI>
+      <MDI key="STATISTICS_MINIMUM">1</MDI>
+      <MDI key="STATISTICS_STDDEV">46.167047001063</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">22.27</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>
