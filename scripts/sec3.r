@@ -25,3 +25,25 @@ library(sf)
 plot(burnedarea.sf)
 
 # sf::write_sf(burnedarea.sf,'./data/3. Spatial analysis/burnedarea_2024.shp',overwrite = TRUE)
+
+library(sf)
+library(rgeoda)
+library(ggplot2)
+
+burnedarea = read_sf('./data/3. Spatial analysis/burnedarea_2024.shp')
+queen_w = queen_weights(burnedarea)
+lisa = local_gstar(queen_w,  burnedarea["burnedarea"])
+cats = lisa_clusters(lisa,cutoff = 0.05)
+burnedarea$hcp = factor(lisa_labels(lisa)[cats + 1],level = lisa_labels(lisa))
+
+p_color = lisa_colors(lisa)
+names(p_color) = lisa_labels(lisa)
+p_label = lisa_labels(lisa)[sort(unique(cats + 1))]
+ggplot(burnedarea) +
+  geom_sf(aes(fill = hcp)) +
+  scale_fill_manual(
+    values = p_color, 
+    labels = p_label) +
+  theme_minimal() +
+  labs(title = "Bushfire Burned Area Hotspot Analysis",
+       fill = "Cluster Type")
