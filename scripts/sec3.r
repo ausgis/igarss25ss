@@ -47,3 +47,11 @@ ggplot(burnedarea) +
   theme_minimal() +
   labs(title = "Bushfire Burned Area Hotspot Analysis",
        fill = "Cluster Type")
+
+library(sf)
+library(gdverse)
+
+burnedarea = read_sf('./data/3. Spatial analysis/burnedarea_2024.shp')
+opgd.m = opgd(burnedarea~tem+pre, data = burnedarea, discnum = 3:15)
+opgd.m
+plot(opgd.m)

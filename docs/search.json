@@ -74,7 +74,7 @@
     "href": "sec3.html#geographical-detector-for-spatial-heterogeneity-and-factor-analysis",
     "title": "\n3  Spatial analysis for remote sensing data\n",
     "section": "\n3.2 Geographical detector for spatial heterogeneity and factor analysis",
-    "text": "3.2 Geographical detector for spatial heterogeneity and factor analysis",
+    "text": "3.2 Geographical detector for spatial heterogeneity and factor analysis\n\n\n\n\n\n\nAim\n\n\n\nThis step is designed to identify the climatic driving factors of bushfire burned area. We will use the gdverse package to analyze the power of determinant of climatic drivers on bushfire burned area based on the optimal parameter geographical detector model.\n\n\n\n\n\n\n\n\nDescription of steps\n\n\n\n\nLoad necessary libraries (sf for spatial data and gdverse for geographical detector analysis).\nRead the shapefile containing burned area and climate data.\nRun the OPGD model.\nPlot the result.\n\n\n\n\nCodelibrary(sf)\nlibrary(gdverse)\n\nburnedarea = read_sf('./data/3. Spatial analysis/burnedarea_2024.shp')\nopgd.m = opgd(burnedarea~tem+pre, data = burnedarea, discnum = 3:15)\nopgd.m\n# ***   Optimal Parameters-based Geographical Detector     \n#                 Factor Detector            \n# \n# | variable | Q-statistic | P-value  |\n# |:--------:|:-----------:|:--------:|\n# |   tem    |   0.1318    | 1.23e-10 |\n# |   pre    |   0.0719    | 8.06e-05 |\nplot(opgd.m)\n\n\n\n\n\n\nFigure 3.4: Climatic driving factors of bushfire burned area",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Spatial analysis for remote sensing data</span>"
     ]
@@ -124,7 +124,7 @@
     "href": "sec3.html#spatial-hotspot-identification",
     "title": "\n3  Spatial analysis for remote sensing data\n",
     "section": "",
-    "text": "Aim\n\n\n\nThis step is designed to identify the spatial hot and cold spots of bushfire burned areas, which will be performed using the rgeoda package.\n\n\n\n\n\n\n\n\nDescription of steps\n\n\n\n\nLoad necessary libraries (sf for spatial data,rgeoda for spatial analysis, ggplot2 for data visualization).\nRead the shapefile containing burned area and climate data.\nCreate the spatial weight matrix.\nRun spatial hotspot analysis.\nPlot the result.",
+    "text": "Aim\n\n\n\nThis step is designed to identify the spatial hot and cold spots of bushfire burned areas, which will be performed using the rgeoda package.\n\n\n\n\n\n\n\n\nDescription of steps\n\n\n\n\nLoad necessary libraries (sf for spatial data, rgeoda for spatial analysis, ggplot2 for data visualization).\nRead the shapefile containing burned area and climate data.\nCreate the spatial weight matrix.\nRun spatial hotspot analysis.\nPlot the result.",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Spatial analysis for remote sensing data</span>"
     ]
