@@ -94,7 +94,7 @@
     "href": "sec4.html#geoai-for-spatial-prediction-of-future-bushfire",
     "title": "4  Geospatial artificial intelligence (GeoAI) for remote sensing data",
     "section": "",
-    "text": "4.1.1 Future climate data collection\n\n\n4.1.2 GeoAI modelling\n\n\n4.1.3 Spatial prediction\n\n\n4.1.4 Analysing future bushfire patterns",
+    "text": "4.1.1 Future climate data collection\n\n\n\n\n\n\nAim\n\n\n\nWe separately collected CMIP6 datasets of temperature and precipitation for 2024 and 2030. The 2024 data will be used for model training, followed by predicting bushfire burn areas for 2030.\n\n\n\n\n\n\n\n\nDescription of steps\n\n\n\n\nLoad NEX-GDDP-CMIP6 data from Google Earth Engine.\n\nAggregate and export the temperature and precipitation data for 2024.\n\nAggregate and export the temperature and precipitation data for 2030.\n\n\n\n\n// Load the CMIP6 dataset\nvar dataset = ee.ImageCollection(\"NASA/NEX/GDDP-CMIP6\")\n  .filter(ee.Filter.eq('model', 'ACCESS-CM2'))  // Select climate model\n  .filter(ee.Filter.eq('experiment', 'ssp585'))  // Select SSP scenario\n  .filterBounds(roi);  // Restrict to the region of interest (ROI)\n\n// Extract variables\nvar temperature = dataset.select('tas');  // Daily mean temperature (unit: K)\nvar precipitation = dataset.select('pr');  // Daily precipitation (unit: kg m-2 s-1)\n\n// Aggregate data for 2024 and 2030\nvar tem24 = temperature.filter(ee.Filter.calendarRange(2024, 2024, 'year')).mean().clip(roi).subtract(273.15);  // Annual mean temperature for 2024 (°C)\nvar tem30 = temperature.filter(ee.Filter.calendarRange(2030, 2030, 'year')).mean().clip(roi).subtract(273.15);  // Annual mean temperature for 2030 (°C)\nvar pre24 = precipitation.filter(ee.Filter.calendarRange(2024, 2024, 'year')).sum().clip(roi).multiply(86400).multiply(365);  // Annual total precipitation for 2024 (mm)\nvar pre30 = precipitation.filter(ee.Filter.calendarRange(2030, 2030, 'year')).sum().clip(roi).multiply(86400).multiply(365);  // Annual total precipitation for 2030 (mm)\n\n// Export aggregated data to Google Drive\nExport.image.toDrive({\n  image: tem24,\n  description: 'tem24',\n  scale: 30000,\n  region: roi,\n  fileFormat: 'GeoTIFF'\n});\nExport.image.toDrive({\n  image: tem30,\n  description: 'tem30',\n  scale: 30000,\n  region: roi,\n  fileFormat: 'GeoTIFF'\n});\nExport.image.toDrive({\n  image: pre24,\n  description: 'pre24',\n  scale: 30000,\n  region: roi,\n  fileFormat: 'GeoTIFF'\n});\nExport.image.toDrive({\n  image: pre30,\n  description: 'pre30',\n  scale: 30000,\n  region: roi,\n  fileFormat: 'GeoTIFF'\n});\n\n\n4.1.2 GeoAI modelling\n\n\n4.1.3 Spatial prediction",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Geospatial artificial intelligence (GeoAI) for remote sensing data</span>"
     ]
@@ -127,6 +127,16 @@
     "text": "Aim\n\n\n\nThis step is designed to identify the spatial hot and cold spots of bushfire burned areas, which will be performed using the rgeoda package.\n\n\n\n\n\n\n\n\nDescription of steps\n\n\n\n\nLoad necessary libraries (sf for spatial data, rgeoda for spatial analysis, ggplot2 for data visualization).\nRead the shapefile containing burned area and climate data.\nCreate the spatial weight matrix.\nRun spatial hotspot analysis.\nPlot the result.",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Spatial analysis for remote sensing data</span>"
+    ]
+  },
+  {
+    "objectID": "sec4.html#analysing-future-bushfire-patterns",
+    "href": "sec4.html#analysing-future-bushfire-patterns",
+    "title": "4  Geospatial artificial intelligence (GeoAI) for remote sensing data",
+    "section": "4.2 Analysing future bushfire patterns",
+    "text": "4.2 Analysing future bushfire patterns",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Geospatial artificial intelligence (GeoAI) for remote sensing data</span>"
     ]
   }
 ]

@@ -4,8 +4,66 @@
 
 ### Future climate data collection
 
+::: {.callout-tip title="Aim"}
+We separately collected CMIP6 datasets of temperature and precipitation for 2024 and 2030. The 2024 data will be used for model training, followed by predicting bushfire burn areas for 2030.
+:::
+
+::: {.callout-caution title="Description of steps"}
+1.	Load NEX-GDDP-CMIP6 data from Google Earth Engine.  
+2.	Aggregate and export the temperature and precipitation data for 2024.  
+3.	Aggregate and export the temperature and precipitation data for 2030.  
+:::
+
+```js
+// Load the CMIP6 dataset
+var dataset = ee.ImageCollection("NASA/NEX/GDDP-CMIP6")
+  .filter(ee.Filter.eq('model', 'ACCESS-CM2'))  // Select climate model
+  .filter(ee.Filter.eq('experiment', 'ssp585'))  // Select SSP scenario
+  .filterBounds(roi);  // Restrict to the region of interest (ROI)
+
+// Extract variables
+var temperature = dataset.select('tas');  // Daily mean temperature (unit: K)
+var precipitation = dataset.select('pr');  // Daily precipitation (unit: kg m-2 s-1)
+
+// Aggregate data for 2024 and 2030
+var tem24 = temperature.filter(ee.Filter.calendarRange(2024, 2024, 'year')).mean().clip(roi).subtract(273.15);  // Annual mean temperature for 2024 (°C)
+var tem30 = temperature.filter(ee.Filter.calendarRange(2030, 2030, 'year')).mean().clip(roi).subtract(273.15);  // Annual mean temperature for 2030 (°C)
+var pre24 = precipitation.filter(ee.Filter.calendarRange(2024, 2024, 'year')).sum().clip(roi).multiply(86400).multiply(365);  // Annual total precipitation for 2024 (mm)
+var pre30 = precipitation.filter(ee.Filter.calendarRange(2030, 2030, 'year')).sum().clip(roi).multiply(86400).multiply(365);  // Annual total precipitation for 2030 (mm)
+
+// Export aggregated data to Google Drive
+Export.image.toDrive({
+  image: tem24,
+  description: 'tem24',
+  scale: 30000,
+  region: roi,
+  fileFormat: 'GeoTIFF'
+});
+Export.image.toDrive({
+  image: tem30,
+  description: 'tem30',
+  scale: 30000,
+  region: roi,
+  fileFormat: 'GeoTIFF'
+});
+Export.image.toDrive({
+  image: pre24,
+  description: 'pre24',
+  scale: 30000,
+  region: roi,
+  fileFormat: 'GeoTIFF'
+});
+Export.image.toDrive({
+  image: pre30,
+  description: 'pre30',
+  scale: 30000,
+  region: roi,
+  fileFormat: 'GeoTIFF'
+});
+```
+
 ### GeoAI modelling
 
 ### Spatial prediction
 
-### Analysing future bushfire patterns
+## Analysing future bushfire patterns

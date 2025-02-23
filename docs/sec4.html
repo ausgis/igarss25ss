@@ -191,8 +191,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#future-climate-data-collection" id="toc-future-climate-data-collection" class="nav-link" data-scroll-target="#future-climate-data-collection"><span class="header-section-number">4.1.1</span> Future climate data collection</a></li>
   <li><a href="#geoai-modelling" id="toc-geoai-modelling" class="nav-link" data-scroll-target="#geoai-modelling"><span class="header-section-number">4.1.2</span> GeoAI modelling</a></li>
   <li><a href="#spatial-prediction" id="toc-spatial-prediction" class="nav-link" data-scroll-target="#spatial-prediction"><span class="header-section-number">4.1.3</span> Spatial prediction</a></li>
-  <li><a href="#analysing-future-bushfire-patterns" id="toc-analysing-future-bushfire-patterns" class="nav-link" data-scroll-target="#analysing-future-bushfire-patterns"><span class="header-section-number">4.1.4</span> Analysing future bushfire patterns</a></li>
   </ul></li>
+  <li><a href="#analysing-future-bushfire-patterns" id="toc-analysing-future-bushfire-patterns" class="nav-link" data-scroll-target="#analysing-future-bushfire-patterns"><span class="header-section-number">4.2</span> Analysing future bushfire patterns</a></li>
   </ul>
 </nav>
     </div>
@@ -222,6 +222,84 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="4.1" class="anchored" data-anchor-id="geoai-for-spatial-prediction-of-future-bushfire"><span class="header-section-number">4.1</span> GeoAI for spatial prediction of future bushfire</h2>
 <section id="future-climate-data-collection" class="level3" data-number="4.1.1">
 <h3 data-number="4.1.1" class="anchored" data-anchor-id="future-climate-data-collection"><span class="header-section-number">4.1.1</span> Future climate data collection</h3>
+<div class="callout callout-style-default callout-tip callout-titled" title="Aim">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Aim
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We separately collected CMIP6 datasets of temperature and precipitation for 2024 and 2030. The 2024 data will be used for model training, followed by predicting bushfire burn areas for 2030.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled" title="Description of steps">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Description of steps
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Load NEX-GDDP-CMIP6 data from Google Earth Engine.<br>
+</li>
+<li>Aggregate and export the temperature and precipitation data for 2024.<br>
+</li>
+<li>Aggregate and export the temperature and precipitation data for 2030.<br>
+</li>
+</ol>
+</div>
+</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the CMIP6 dataset</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"NASA/NEX/GDDP-CMIP6"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">eq</span>(<span class="st">'model'</span><span class="op">,</span> <span class="st">'ACCESS-CM2'</span>))  <span class="co">// Select climate model</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">eq</span>(<span class="st">'experiment'</span><span class="op">,</span> <span class="st">'ssp585'</span>))  <span class="co">// Select SSP scenario</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filterBounds</span>(roi)<span class="op">;</span>  <span class="co">// Restrict to the region of interest (ROI)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Extract variables</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> temperature <span class="op">=</span> dataset<span class="op">.</span><span class="fu">select</span>(<span class="st">'tas'</span>)<span class="op">;</span>  <span class="co">// Daily mean temperature (unit: K)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> precipitation <span class="op">=</span> dataset<span class="op">.</span><span class="fu">select</span>(<span class="st">'pr'</span>)<span class="op">;</span>  <span class="co">// Daily precipitation (unit: kg m-2 s-1)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Aggregate data for 2024 and 2030</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> tem24 <span class="op">=</span> temperature<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2024</span><span class="op">,</span> <span class="dv">2024</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">mean</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)<span class="op">;</span>  <span class="co">// Annual mean temperature for 2024 (°C)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> tem30 <span class="op">=</span> temperature<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2030</span><span class="op">,</span> <span class="dv">2030</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">mean</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)<span class="op">;</span>  <span class="co">// Annual mean temperature for 2030 (°C)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> pre24 <span class="op">=</span> precipitation<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2024</span><span class="op">,</span> <span class="dv">2024</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">sum</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">86400</span>)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">365</span>)<span class="op">;</span>  <span class="co">// Annual total precipitation for 2024 (mm)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> pre30 <span class="op">=</span> precipitation<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2030</span><span class="op">,</span> <span class="dv">2030</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">sum</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">86400</span>)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">365</span>)<span class="op">;</span>  <span class="co">// Annual total precipitation for 2030 (mm)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">// Export aggregated data to Google Drive</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> tem24<span class="op">,</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'tem24'</span><span class="op">,</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">30000</span><span class="op">,</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> tem30<span class="op">,</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'tem30'</span><span class="op">,</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">30000</span><span class="op">,</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> pre24<span class="op">,</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'pre24'</span><span class="op">,</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">30000</span><span class="op">,</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> pre30<span class="op">,</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'pre30'</span><span class="op">,</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">30000</span><span class="op">,</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="geoai-modelling" class="level3" data-number="4.1.2">
 <h3 data-number="4.1.2" class="anchored" data-anchor-id="geoai-modelling"><span class="header-section-number">4.1.2</span> GeoAI modelling</h3>
@@ -229,13 +307,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="spatial-prediction" class="level3" data-number="4.1.3">
 <h3 data-number="4.1.3" class="anchored" data-anchor-id="spatial-prediction"><span class="header-section-number">4.1.3</span> Spatial prediction</h3>
 </section>
-<section id="analysing-future-bushfire-patterns" class="level3" data-number="4.1.4">
-<h3 data-number="4.1.4" class="anchored" data-anchor-id="analysing-future-bushfire-patterns"><span class="header-section-number">4.1.4</span> Analysing future bushfire patterns</h3>
+</section>
+<section id="analysing-future-bushfire-patterns" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="analysing-future-bushfire-patterns"><span class="header-section-number">4.2</span> Analysing future bushfire patterns</h2>
 
 
 <!-- -->
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -719,17 +797,75 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Geospatial artificial intelligence (GeoAI) for remote sensing data</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## GeoAI for spatial prediction of future bushfire </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">### Future climate data collection</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">### GeoAI modelling</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">### Spatial prediction</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">### Analysing future bushfire patterns</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Geospatial artificial intelligence (GeoAI) for remote sensing data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## GeoAI for spatial prediction of future bushfire </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">### Future climate data collection</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>We separately collected CMIP6 datasets of temperature and precipitation for 2024 and 2030. The 2024 data will be used for model training, followed by predicting bushfire burn areas for 2030.</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load NEX-GDDP-CMIP6 data from Google Earth Engine.  </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Aggregate and export the temperature and precipitation data for 2024.  </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Aggregate and export the temperature and precipitation data for 2030.  </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="in">```js</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the CMIP6 dataset</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"NASA/NEX/GDDP-CMIP6"</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">eq</span>(<span class="st">'model'</span><span class="op">,</span> <span class="st">'ACCESS-CM2'</span>))  <span class="co">// Select climate model</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">eq</span>(<span class="st">'experiment'</span><span class="op">,</span> <span class="st">'ssp585'</span>))  <span class="co">// Select SSP scenario</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filterBounds</span>(roi)<span class="op">;</span>  <span class="co">// Restrict to the region of interest (ROI)</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">// Extract variables</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> temperature <span class="op">=</span> dataset<span class="op">.</span><span class="fu">select</span>(<span class="st">'tas'</span>)<span class="op">;</span>  <span class="co">// Daily mean temperature (unit: K)</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> precipitation <span class="op">=</span> dataset<span class="op">.</span><span class="fu">select</span>(<span class="st">'pr'</span>)<span class="op">;</span>  <span class="co">// Daily precipitation (unit: kg m-2 s-1)</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">// Aggregate data for 2024 and 2030</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> tem24 <span class="op">=</span> temperature<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2024</span><span class="op">,</span> <span class="dv">2024</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">mean</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)<span class="op">;</span>  <span class="co">// Annual mean temperature for 2024 (°C)</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> tem30 <span class="op">=</span> temperature<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2030</span><span class="op">,</span> <span class="dv">2030</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">mean</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)<span class="op">;</span>  <span class="co">// Annual mean temperature for 2030 (°C)</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> pre24 <span class="op">=</span> precipitation<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2024</span><span class="op">,</span> <span class="dv">2024</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">sum</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">86400</span>)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">365</span>)<span class="op">;</span>  <span class="co">// Annual total precipitation for 2024 (mm)</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> pre30 <span class="op">=</span> precipitation<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2030</span><span class="op">,</span> <span class="dv">2030</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">sum</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">86400</span>)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">365</span>)<span class="op">;</span>  <span class="co">// Annual total precipitation for 2030 (mm)</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co">// Export aggregated data to Google Drive</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> tem24<span class="op">,</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'tem24'</span><span class="op">,</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">30000</span><span class="op">,</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> tem30<span class="op">,</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'tem30'</span><span class="op">,</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">30000</span><span class="op">,</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> pre24<span class="op">,</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'pre24'</span><span class="op">,</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">30000</span><span class="op">,</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> pre30<span class="op">,</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'pre30'</span><span class="op">,</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">30000</span><span class="op">,</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="fu">### GeoAI modelling</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a><span class="fu">### Spatial prediction</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="fu">## Analysing future bushfire patterns</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
