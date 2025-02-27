@@ -74,13 +74,31 @@ gp_model = GPModel(gp_coords = sdsfun::sf_coordinates(d24),
 bst = gpboost(data = as.matrix(sf::st_drop_geometry(d24)[,1:2]), 
               label = as.matrix(sf::st_drop_geometry(d24)[,3,drop = FALSE]), 
               gp_model = gp_model, objective = "regression_l2", verbose = 0)
-summary(gp_model) 
+bst
+
+pre30 = terra::rast('./data/4. GeoAI Modeling/pre30.tif')
+tem30 = terra::rast('./data/4. GeoAI Modeling/tem30.tif')
+d30 = c(pre30,tem30)
+names(d30) = c("pre","tem")
+d30 = d30 |> 
+  terra::as.polygons(aggregate = FALSE) |> 
+  sf::st_as_sf() |> 
+  dplyr::filter(dplyr::if_all(1:3,\(.x) !is.na(.x)))
+d30
+
+pred = predict(bst, data = as.matrix(sf::st_drop_geometry(d30)[,1:2]), 
+               gp_coords_pred = sdsfun::sf_coordinates(d30), 
+               predict_var = TRUE, pred_latent = FALSE)
+
+pred
+
+d30$burned = pred$response_mean
+d30
 
 
 # Estimated covariance parameters
 # Make predictions: latent variables and response variable
-pred <- predict(bst, data = X_test, gp_coords_pred = coords_test, 
-                predict_var = TRUE, pred_latent = TRUE)
+
 # pred[["fixed_effect"]]: predictions from the tree-ensemble.
 # pred[["random_effect_mean"]]: predicted means of the gp_model.
 # pred["random_effect_cov"]]: predicted (co-)variances 

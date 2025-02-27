@@ -309,6 +309,7 @@ Description of steps
 <ol type="1">
 <li>Load necessary libraries and data.</li>
 <li>Read the data containing burned area and climate data.</li>
+<li>Process the data to fit the gpboost model.</li>
 <li>Build an gpboost model.</li>
 </ol>
 </div>
@@ -408,6 +409,109 @@ Description of steps
 </div>
 </section><section id="spatial-prediction" class="level3" data-number="4.1.3"><h3 data-number="4.1.3" class="anchored" data-anchor-id="spatial-prediction">
 <span class="header-section-number">4.1.3</span> Spatial prediction</h3>
+<div class="callout callout-style-default callout-tip callout-titled" title="Aim">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Aim
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In this step, the gpboost model constructed in the previous step is used to predict the burned area of 2030.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled" title="Description of steps">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Description of steps
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Read the 2030 futural climate data.</li>
+<li>Process the data to use the gpboost model to predict.</li>
+<li>Do spatial prediction by the gpboost model.</li>
+</ol>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">pre30</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html">rast</a></span><span class="op">(</span><span class="st">'./data/4. GeoAI Modeling/pre30.tif'</span><span class="op">)</span></span>
+<span><span class="va">tem30</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html">rast</a></span><span class="op">(</span><span class="st">'./data/4. GeoAI Modeling/tem30.tif'</span><span class="op">)</span></span>
+<span><span class="va">d30</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">pre30</span>,<span class="va">tem30</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html">names</a></span><span class="op">(</span><span class="va">d30</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pre"</span>,<span class="st">"tem"</span><span class="op">)</span></span>
+<span><span class="va">d30</span> <span class="op">=</span> <span class="va">d30</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/as.polygons.html">as.polygons</a></span><span class="op">(</span>aggregate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html">st_as_sf</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html">if_all</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,\<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">d30</span></span>
+<span><span class="co"># Simple feature collection with 37 features and 2 fields</span></span>
+<span><span class="co"># Geometry type: POLYGON</span></span>
+<span><span class="co"># Dimension:     XY</span></span>
+<span><span class="co"># Bounding box:  xmin: 129 ymin: -15 xmax: 131 ymax: -13.3</span></span>
+<span><span class="co"># Geodetic CRS:  WGS 84</span></span>
+<span><span class="co"># First 10 features:</span></span>
+<span><span class="co">#       pre  tem                       geometry</span></span>
+<span><span class="co"># 1  652488 28.6 POLYGON ((130 -13.5, 130 -1...</span></span>
+<span><span class="co"># 2  695938 28.6 POLYGON ((130 -13.5, 130 -1...</span></span>
+<span><span class="co"># 3  712191 28.4 POLYGON ((130 -13.5, 130 -1...</span></span>
+<span><span class="co"># 4  701452 28.1 POLYGON ((131 -13.5, 131 -1...</span></span>
+<span><span class="co"># 5  682812 28.5 POLYGON ((130 -13.8, 130 -1...</span></span>
+<span><span class="co"># 6  696118 28.4 POLYGON ((130 -13.8, 130 -1...</span></span>
+<span><span class="co"># 7  697721 28.3 POLYGON ((130 -13.8, 130 -1...</span></span>
+<span><span class="co"># 8  684002 28.2 POLYGON ((131 -13.8, 131 -1...</span></span>
+<span><span class="co"># 9  671438 28.5 POLYGON ((130 -14, 130 -13....</span></span>
+<span><span class="co"># 10 689152 28.3 POLYGON ((130 -14, 130 -13....</span></span>
+<span></span>
+<span><span class="va">pred</span> <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/predict.html">predict</a></span><span class="op">(</span><span class="va">bst</span>, data <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/coerce.html">as.matrix</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_drop_geometry</a></span><span class="op">(</span><span class="va">d30</span><span class="op">)</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>               gp_coords_pred <span class="op">=</span> <span class="fu">sdsfun</span><span class="fu">::</span><span class="fu"><a href="https://stscl.github.io/sdsfun/reference/sf_coordinates.html">sf_coordinates</a></span><span class="op">(</span><span class="va">d30</span><span class="op">)</span>, </span>
+<span>               predict_var <span class="op">=</span> <span class="cn">TRUE</span>, pred_latent <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pred</span></span>
+<span><span class="co"># $fixed_effect</span></span>
+<span><span class="co"># NULL</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># $random_effect_mean</span></span>
+<span><span class="co"># [1] NA</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># $random_effect_cov</span></span>
+<span><span class="co"># [1] NA</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># $response_mean</span></span>
+<span><span class="co">#  [1] 155 149 172 179 158 171 181 191 193 169 170 174 195 168 180 182</span></span>
+<span><span class="co"># [17] 161 153 156 189 176 169 161 141 140 144 158 150 144 125 122 134</span></span>
+<span><span class="co"># [33] 129 133 132 129 128</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># $response_var</span></span>
+<span><span class="co">#  [1] 320 133 130 135 131 127 127 130 131 127 127 127 130 133 127 127</span></span>
+<span><span class="co"># [17] 127 127 130 130 127 127 127 127 130 133 127 127 127 127 130 329</span></span>
+<span><span class="co"># [33] 133 130 130 130 135</span></span>
+<span></span>
+<span><span class="va">d30</span><span class="op">$</span><span class="va">burned</span> <span class="op">=</span> <span class="va">pred</span><span class="op">$</span><span class="va">response_mean</span></span>
+<span><span class="va">d30</span></span>
+<span><span class="co"># Simple feature collection with 37 features and 3 fields</span></span>
+<span><span class="co"># Geometry type: POLYGON</span></span>
+<span><span class="co"># Dimension:     XY</span></span>
+<span><span class="co"># Bounding box:  xmin: 129 ymin: -15 xmax: 131 ymax: -13.3</span></span>
+<span><span class="co"># Geodetic CRS:  WGS 84</span></span>
+<span><span class="co"># First 10 features:</span></span>
+<span><span class="co">#       pre  tem                       geometry burned</span></span>
+<span><span class="co"># 1  652488 28.6 POLYGON ((130 -13.5, 130 -1...    155</span></span>
+<span><span class="co"># 2  695938 28.6 POLYGON ((130 -13.5, 130 -1...    149</span></span>
+<span><span class="co"># 3  712191 28.4 POLYGON ((130 -13.5, 130 -1...    172</span></span>
+<span><span class="co"># 4  701452 28.1 POLYGON ((131 -13.5, 131 -1...    179</span></span>
+<span><span class="co"># 5  682812 28.5 POLYGON ((130 -13.8, 130 -1...    158</span></span>
+<span><span class="co"># 6  696118 28.4 POLYGON ((130 -13.8, 130 -1...    171</span></span>
+<span><span class="co"># 7  697721 28.3 POLYGON ((130 -13.8, 130 -1...    181</span></span>
+<span><span class="co"># 8  684002 28.2 POLYGON ((131 -13.8, 131 -1...    191</span></span>
+<span><span class="co"># 9  671438 28.5 POLYGON ((130 -14, 130 -13....    193</span></span>
+<span><span class="co"># 10 689152 28.3 POLYGON ((130 -14, 130 -13....    169</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 </section></section><section id="analysing-future-bushfire-patterns" class="level2" data-number="4.2"><h2 data-number="4.2" class="anchored" data-anchor-id="analysing-future-bushfire-patterns">
 <span class="header-section-number">4.2</span> Analysing future bushfire patterns</h2>
 
@@ -892,110 +996,143 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb3" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Geospatial artificial intelligence (GeoAI) for remote sensing data</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## GeoAI for spatial prediction of future bushfire </span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">### Future climate data collection</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>We separately collected CMIP6 datasets of temperature and precipitation for 2024 and 2030. The 2024 data will be used for model training, followed by predicting bushfire burn areas for 2030.</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load NEX-GDDP-CMIP6 data from Google Earth Engine.  </span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Aggregate and export the temperature and precipitation data for 2024.  </span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Aggregate and export the temperature and precipitation data for 2030.  </span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="in">```js</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the CMIP6 dataset</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"NASA/GDDP-CMIP6"</span>)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">eq</span>(<span class="st">'model'</span><span class="op">,</span> <span class="st">'ACCESS-CM2'</span>))  <span class="co">// Select climate model</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">eq</span>(<span class="st">'scenario'</span><span class="op">,</span> <span class="st">'ssp585'</span>))  <span class="co">// Select SSP scenario</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filterBounds</span>(roi)<span class="op">;</span>  <span class="co">// Restrict to the region of interest (ROI)</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">// Extract variables</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> temperature <span class="op">=</span> dataset<span class="op">.</span><span class="fu">select</span>(<span class="st">'tas'</span>)<span class="op">;</span>  <span class="co">// Daily mean temperature (unit: K)</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> precipitation <span class="op">=</span> dataset<span class="op">.</span><span class="fu">select</span>(<span class="st">'pr'</span>)<span class="op">;</span>  <span class="co">// Daily precipitation (unit: kg m-2 s-1)</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">// Aggregate data for 2024 and 2030</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> tem24 <span class="op">=</span> temperature<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2024</span><span class="op">,</span> <span class="dv">2024</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">mean</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)<span class="op">;</span>  <span class="co">// Annual mean temperature for 2024 (°C)</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> tem30 <span class="op">=</span> temperature<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2030</span><span class="op">,</span> <span class="dv">2030</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">mean</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)<span class="op">;</span>  <span class="co">// Annual mean temperature for 2030 (°C)</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> pre24 <span class="op">=</span> precipitation<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2024</span><span class="op">,</span> <span class="dv">2024</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">sum</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">86400</span>)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">365</span>)<span class="op">;</span>  <span class="co">// Annual total precipitation for 2024 (mm)</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> pre30 <span class="op">=</span> precipitation<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2030</span><span class="op">,</span> <span class="dv">2030</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">sum</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">86400</span>)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">365</span>)<span class="op">;</span>  <span class="co">// Annual total precipitation for 2030 (mm)</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">// Export aggregated data to Google Drive</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> tem24<span class="op">,</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'tem24'</span><span class="op">,</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">27830</span><span class="op">,</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> tem30<span class="op">,</span></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'tem30'</span><span class="op">,</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">27830</span><span class="op">,</span></span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> pre24<span class="op">,</span></span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'pre24'</span><span class="op">,</span></span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">27830</span><span class="op">,</span></span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> pre30<span class="op">,</span></span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'pre30'</span><span class="op">,</span></span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">27830</span><span class="op">,</span></span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="fu">### GeoAI modelling</span></span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>The step uses the gpboost model to fit temperature and precipitation data in 2024 for the next step of spatial prediction.</span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load necessary libraries and data.</span>
-<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Read the data containing burned area and climate data.</span>
-<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Build an gpboost model.</span>
-<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a><span class="in">```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}</span></span>
-<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
-<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a><span class="in">library(terra)</span></span>
-<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a><span class="in">pre24 = terra::rast('./data/4. GeoAI Modeling/pre24.tif')</span></span>
-<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a><span class="in">tem24 = terra::rast('./data/4. GeoAI Modeling/tem24.tif')</span></span>
-<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a><span class="in">burnedarea = terra::rast('./data/1. Data collection/BurnedArea/BurnedArea_2024.tif') |&gt; </span></span>
-<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a><span class="in">  terra::resample(tem24,method = 'average')</span></span>
-<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a><span class="in">d24 = c(pre24,tem24,burnedarea)</span></span>
-<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a><span class="in">names(d24) = c("pre","tem","burned")</span></span>
-<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a><span class="in">d24 = d24 |&gt; </span></span>
-<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a><span class="in">  terra::as.polygons(aggregate = FALSE) |&gt; </span></span>
-<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a><span class="in">  sf::st_as_sf() |&gt; </span></span>
-<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a><span class="in">  dplyr::filter(dplyr::if_all(1:3,\(.x) !is.na(.x)))</span></span>
-<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a><span class="in">d24</span></span>
-<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a><span class="in">library(gpboost)</span></span>
-<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a><span class="in">gp_model = GPModel(gp_coords = sdsfun::sf_coordinates(d24), </span></span>
-<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a><span class="in">                   cov_function = "exponential")</span></span>
-<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a><span class="in"># Training</span></span>
-<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a><span class="in">bst = gpboost(data = as.matrix(sf::st_drop_geometry(d24)[,1:2]), </span></span>
-<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a><span class="in">              label = as.matrix(sf::st_drop_geometry(d24)[,3,drop = FALSE]), </span></span>
-<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a><span class="in">              gp_model = gp_model, objective = "regression_l2", verbose = 0)</span></span>
-<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a><span class="in">bst</span></span>
-<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### Spatial prediction</span></span>
-<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a><span class="fu">## Analysing future bushfire patterns</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Geospatial artificial intelligence (GeoAI) for remote sensing data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## GeoAI for spatial prediction of future bushfire </span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">### Future climate data collection</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>We separately collected CMIP6 datasets of temperature and precipitation for 2024 and 2030. The 2024 data will be used for model training, followed by predicting bushfire burn areas for 2030.</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load NEX-GDDP-CMIP6 data from Google Earth Engine.  </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Aggregate and export the temperature and precipitation data for 2024.  </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Aggregate and export the temperature and precipitation data for 2030.  </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="in">```js</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">// Load the CMIP6 dataset</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> dataset <span class="op">=</span> ee<span class="op">.</span><span class="fu">ImageCollection</span>(<span class="st">"NASA/GDDP-CMIP6"</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">eq</span>(<span class="st">'model'</span><span class="op">,</span> <span class="st">'ACCESS-CM2'</span>))  <span class="co">// Select climate model</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">eq</span>(<span class="st">'scenario'</span><span class="op">,</span> <span class="st">'ssp585'</span>))  <span class="co">// Select SSP scenario</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filterBounds</span>(roi)<span class="op">;</span>  <span class="co">// Restrict to the region of interest (ROI)</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">// Extract variables</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> temperature <span class="op">=</span> dataset<span class="op">.</span><span class="fu">select</span>(<span class="st">'tas'</span>)<span class="op">;</span>  <span class="co">// Daily mean temperature (unit: K)</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> precipitation <span class="op">=</span> dataset<span class="op">.</span><span class="fu">select</span>(<span class="st">'pr'</span>)<span class="op">;</span>  <span class="co">// Daily precipitation (unit: kg m-2 s-1)</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">// Aggregate data for 2024 and 2030</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> tem24 <span class="op">=</span> temperature<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2024</span><span class="op">,</span> <span class="dv">2024</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">mean</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)<span class="op">;</span>  <span class="co">// Annual mean temperature for 2024 (°C)</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> tem30 <span class="op">=</span> temperature<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2030</span><span class="op">,</span> <span class="dv">2030</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">mean</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">subtract</span>(<span class="fl">273.15</span>)<span class="op">;</span>  <span class="co">// Annual mean temperature for 2030 (°C)</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> pre24 <span class="op">=</span> precipitation<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2024</span><span class="op">,</span> <span class="dv">2024</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">sum</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">86400</span>)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">365</span>)<span class="op">;</span>  <span class="co">// Annual total precipitation for 2024 (mm)</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> pre30 <span class="op">=</span> precipitation<span class="op">.</span><span class="fu">filter</span>(ee<span class="op">.</span><span class="at">Filter</span><span class="op">.</span><span class="fu">calendarRange</span>(<span class="dv">2030</span><span class="op">,</span> <span class="dv">2030</span><span class="op">,</span> <span class="st">'year'</span>))<span class="op">.</span><span class="fu">sum</span>()<span class="op">.</span><span class="fu">clip</span>(roi)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">86400</span>)<span class="op">.</span><span class="fu">multiply</span>(<span class="dv">365</span>)<span class="op">;</span>  <span class="co">// Annual total precipitation for 2030 (mm)</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co">// Export aggregated data to Google Drive</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> tem24<span class="op">,</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'tem24'</span><span class="op">,</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">27830</span><span class="op">,</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> tem30<span class="op">,</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'tem30'</span><span class="op">,</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">27830</span><span class="op">,</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> pre24<span class="op">,</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'pre24'</span><span class="op">,</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">27830</span><span class="op">,</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>Export<span class="op">.</span><span class="at">image</span><span class="op">.</span><span class="fu">toDrive</span>({</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span><span class="op">:</span> pre30<span class="op">,</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span><span class="op">:</span> <span class="st">'pre30'</span><span class="op">,</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  <span class="dt">scale</span><span class="op">:</span> <span class="dv">27830</span><span class="op">,</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>  <span class="dt">region</span><span class="op">:</span> roi<span class="op">,</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>  <span class="dt">fileFormat</span><span class="op">:</span> <span class="st">'GeoTIFF'</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="fu">### GeoAI modelling</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>The step uses the gpboost model to fit temperature and precipitation data in 2024 for the next step of spatial prediction.</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load necessary libraries and data.</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Read the data containing burned area and climate data.</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Process the data to fit the gpboost model.</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Build an gpboost model.</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a><span class="in">```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}</span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a><span class="in">library(terra)</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a><span class="in">pre24 = terra::rast('./data/4. GeoAI Modeling/pre24.tif')</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a><span class="in">tem24 = terra::rast('./data/4. GeoAI Modeling/tem24.tif')</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a><span class="in">burnedarea = terra::rast('./data/1. Data collection/BurnedArea/BurnedArea_2024.tif') |&gt; </span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a><span class="in">  terra::resample(tem24,method = 'average')</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a><span class="in">d24 = c(pre24,tem24,burnedarea)</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a><span class="in">names(d24) = c("pre","tem","burned")</span></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a><span class="in">d24 = d24 |&gt; </span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="in">  terra::as.polygons(aggregate = FALSE) |&gt; </span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a><span class="in">  sf::st_as_sf() |&gt; </span></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a><span class="in">  dplyr::filter(dplyr::if_all(1:3,\(.x) !is.na(.x)))</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a><span class="in">d24</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a><span class="in">library(gpboost)</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a><span class="in">gp_model = GPModel(gp_coords = sdsfun::sf_coordinates(d24), </span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a><span class="in">                   cov_function = "exponential")</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a><span class="in"># Training</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a><span class="in">bst = gpboost(data = as.matrix(sf::st_drop_geometry(d24)[,1:2]), </span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a><span class="in">              label = as.matrix(sf::st_drop_geometry(d24)[,3,drop = FALSE]), </span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a><span class="in">              gp_model = gp_model, objective = "regression_l2", verbose = 0)</span></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a><span class="in">bst</span></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a><span class="fu">### Spatial prediction</span></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>In this step, the gpboost model constructed in the previous step is used to predict the burned area of 2030.</span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Read the 2030 futural climate data.</span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Process the data to use the gpboost model to predict.</span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Do spatial prediction by the gpboost model.</span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a><span class="in">```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}</span></span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a><span class="in">pre30 = terra::rast('./data/4. GeoAI Modeling/pre30.tif')</span></span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a><span class="in">tem30 = terra::rast('./data/4. GeoAI Modeling/tem30.tif')</span></span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a><span class="in">d30 = c(pre30,tem30)</span></span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a><span class="in">names(d30) = c("pre","tem")</span></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a><span class="in">d30 = d30 |&gt; </span></span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a><span class="in">  terra::as.polygons(aggregate = FALSE) |&gt; </span></span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a><span class="in">  sf::st_as_sf() |&gt; </span></span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a><span class="in">  dplyr::filter(dplyr::if_all(1:3,\(.x) !is.na(.x)))</span></span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a><span class="in">d30</span></span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a><span class="in">pred = predict(bst, data = as.matrix(sf::st_drop_geometry(d30)[,1:2]), </span></span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a><span class="in">               gp_coords_pred = sdsfun::sf_coordinates(d30), </span></span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a><span class="in">               predict_var = TRUE, pred_latent = FALSE)</span></span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a><span class="in">pred</span></span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a><span class="in">d30$burned = pred$response_mean</span></span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a><span class="in">d30</span></span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a><span class="fu">## Analysing future bushfire patterns</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

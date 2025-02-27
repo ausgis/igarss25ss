@@ -71,7 +71,8 @@ The step uses the gpboost model to fit temperature and precipitation data in 202
 ::: {.callout-caution title="Description of steps"}
 1.	Load necessary libraries and data.
 2.	Read the data containing burned area and climate data.
-3.	Build an gpboost model.
+3.  Process the data to fit the gpboost model.
+4.	Build an gpboost model.
 :::
 
 ```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
@@ -100,5 +101,37 @@ bst
 ```
 
 ### Spatial prediction
+
+::: {.callout-tip title="Aim"}
+In this step, the gpboost model constructed in the previous step is used to predict the burned area of 2030.
+:::
+
+::: {.callout-caution title="Description of steps"}
+1.	Read the 2030 futural climate data.
+2.  Process the data to use the gpboost model to predict.
+3.	Do spatial prediction by the gpboost model.
+:::
+
+```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
+#| code-fold: true
+pre30 = terra::rast('./data/4. GeoAI Modeling/pre30.tif')
+tem30 = terra::rast('./data/4. GeoAI Modeling/tem30.tif')
+d30 = c(pre30,tem30)
+names(d30) = c("pre","tem")
+d30 = d30 |> 
+  terra::as.polygons(aggregate = FALSE) |> 
+  sf::st_as_sf() |> 
+  dplyr::filter(dplyr::if_all(1:3,\(.x) !is.na(.x)))
+d30
+
+pred = predict(bst, data = as.matrix(sf::st_drop_geometry(d30)[,1:2]), 
+               gp_coords_pred = sdsfun::sf_coordinates(d30), 
+               predict_var = TRUE, pred_latent = FALSE)
+
+pred
+
+d30$burned = pred$response_mean
+d30
+```
 
 ## Analysing future bushfire patterns
