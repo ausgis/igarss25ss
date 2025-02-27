@@ -1,5 +1,7 @@
 # Preface {.unnumbered}
 
+![](./figures/igarss25.png){fig-alt="IEEE IGARSS 2025" fig-align="left"}
+
 **Topic**:Tools for remote sensing and geospatial intelligence analysis: An example of climate impact on bushfire.
 
 ::: {.callout-note}
