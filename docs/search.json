@@ -134,7 +134,7 @@
     "href": "sec4.html#analysing-future-bushfire-patterns",
     "title": "\n4  Geospatial artificial intelligence (GeoAI) for remote sensing data\n",
     "section": "\n4.2 Analysing future bushfire patterns",
-    "text": "4.2 Analysing future bushfire patterns",
+    "text": "4.2 Analysing future bushfire patterns\n\n\n\n\n\n\nAim\n\n\n\nIn this step, the predicted burned area of 2030 is used to analyse the future bushfire patterns.\n\n\n\n\n\n\n\n\nDescription of steps\n\n\n\n\nVisualise the predicted burned area of 2030.\nAnalyse the future bushfire patterns.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Geospatial artificial intelligence (GeoAI) for remote sensing data</span>"
     ]

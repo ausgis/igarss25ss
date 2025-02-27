@@ -137,3 +137,12 @@ d30
 ```
 
 ## Analysing future bushfire patterns
+
+::: {.callout-tip title="Aim"}
+In this step, the predicted burned area of 2030 is used to analyse the future bushfire patterns.
+:::
+
+::: {.callout-caution title="Description of steps"}
+1.	Visualise the predicted burned area of 2030.
+2.	Analyse the future bushfire patterns.
+:::
