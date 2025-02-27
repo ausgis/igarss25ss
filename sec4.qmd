@@ -75,6 +75,8 @@ The step uses the gpboost model to fit temperature and precipitation data in 202
 4.	Build an gpboost model.
 :::
 
+See [here](https://towardsdatascience.com/tree-boosting-for-spatial-data-789145d6d97d/?sk=4f9924d378dbb517e883fc9c612c34f1) for more details about the gpboost model on spatio-temporal data.
+
 ```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
 #| code-fold: true
 library(terra)
