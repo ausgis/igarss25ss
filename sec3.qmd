@@ -7,7 +7,7 @@ We will perform spatial hot spot and cold spot analysis using the **rgeoda** pac
 You can install the required packages using the following commands in the R console:
 
 ```r
-install.packages(c("sf","terra","tidyverse","rgeoda","gdverse"),dep = TRUE)
+install.packages(c("sf","terra","tidyverse","rgeoda","gdverse","gpboost"),dep = TRUE)
 ```
 
 Now we read the data to R and perform some basic data exploration：
@@ -65,7 +65,7 @@ This step is designed to identify the spatial hot and cold spots of bushfire bur
 
 ::: {.callout-caution title="Description of steps"}
 1.	Load necessary libraries (sf for spatial data, rgeoda for spatial analysis, ggplot2 for data visualization).
-2.	Read the shapefile containing burned area and climate data.
+2.	Read the burned area and climate data.
 3.	Create the spatial weight matrix.
 4.	Run spatial hotspot analysis.
 5.	Plot the result.
@@ -105,7 +105,7 @@ This step is designed to identify the climatic driving factors of bushfire burne
 
 ::: {.callout-caution title="Description of steps"}
 1.	Load necessary libraries (sf for spatial data and gdverse for geographical detector analysis).
-2.	Read the shapefile containing burned area and climate data.
+2.	Read the burned area and climate data.
 3.	Run the OPGD model.
 4.	Plot the result.
 :::
