@@ -16,9 +16,10 @@ book:
       - name: Curtin University
         city: Perth
         country: Australia
-  date: "2025/2/24"
-  # site-url: https://ausgis.github.io/igarss25ss/
-  # repo-url: https://github.com/ausgis/igarss25ss/
+  date: today
+  # date: "2025/2/24"
+  site-url: https://ausgis.github.io/igarss25ss/
+  repo-url: https://github.com/ausgis/igarss25ss/
   # repo-branch: main
   # repo-actions: [edit]
   chapters:
