@@ -61,14 +61,25 @@ In this step, the gpboost model constructed in the previous step is used to pred
 
 ```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
 #| code-fold: true
+library(terra)
+
 pref = terra::rast('./data/4. GeoAI Modeling/future_prec.tif')
+pref
+pref = terra::app(pref,fun = "sum",na.rm = TRUE)
+names(pref) = "pre"
+pref
+
 temf = terra::rast('./data/4. GeoAI Modeling/future_tmax.tif')
+temf
+temf = terra::app(temf,fun = "mean",na.rm = TRUE)
+names(temf) = "tem"
+temf
+
 d30 = c(pref,temf)
-names(d30) = c("pre","tem")
 d30 = d30 |> 
   terra::as.polygons(aggregate = FALSE) |> 
   sf::st_as_sf() |> 
-  dplyr::filter(dplyr::if_all(1:3,\(.x) !is.na(.x)))
+  dplyr::filter(dplyr::if_all(1:2,\(.x) !is.na(.x)))
 d30
 
 pred = predict(bst, data = as.matrix(sf::st_drop_geometry(d30)[,1:2]), 
