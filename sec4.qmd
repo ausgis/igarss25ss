@@ -5,62 +5,16 @@
 ### Future climate data collection
 
 ::: {.callout-tip title="Aim"}
-We separately collected CMIP6 datasets of temperature and precipitation for 2024 and 2030. The 2024 data will be used for model training, followed by predicting bushfire burn areas for 2030.
+We separately collected future climate datasets of temperature and precipitation for the time period 2021–2040 from WorldClim. The previous 2024 data will be used for model training, followed by predicting bushfire burn areas for the time period 2021–2040.
 :::
 
 ::: {.callout-caution title="Description of steps"}
-1.	Load NEX-GDDP-CMIP6 data from Google Earth Engine.  
-2.	Aggregate and export the temperature and precipitation data for 2024.  
-3.	Aggregate and export the temperature and precipitation data for 2030.  
+1.	Download WorldClim future climate datasets of temperature and precipitation for the time period 2021–2040.
+2.	Preprocess the downloaded future climate data and organize it into vector format for subsequent predictions.
 :::
 
-```js
-// Load the CMIP6 dataset
-var dataset = ee.ImageCollection("NASA/GDDP-CMIP6")
-  .filter(ee.Filter.eq('model', 'ACCESS-CM2'))  // Select climate model
-  .filter(ee.Filter.eq('scenario', 'ssp585'))  // Select SSP scenario
-  .filterBounds(roi);  // Restrict to the region of interest (ROI)
-
-// Extract variables
-var temperature = dataset.select('tas');  // Daily mean temperature (unit: K)
-var precipitation = dataset.select('pr');  // Daily precipitation (unit: kg m-2 s-1)
-
-// Aggregate data for 2024 and 2030
-var tem24 = temperature.filter(ee.Filter.calendarRange(2024, 2024, 'year')).mean().clip(roi).subtract(273.15);  // Annual mean temperature for 2024 (°C)
-var tem30 = temperature.filter(ee.Filter.calendarRange(2030, 2030, 'year')).mean().clip(roi).subtract(273.15);  // Annual mean temperature for 2030 (°C)
-var pre24 = precipitation.filter(ee.Filter.calendarRange(2024, 2024, 'year')).sum().clip(roi).multiply(86400).multiply(365);  // Annual total precipitation for 2024 (mm)
-var pre30 = precipitation.filter(ee.Filter.calendarRange(2030, 2030, 'year')).sum().clip(roi).multiply(86400).multiply(365);  // Annual total precipitation for 2030 (mm)
-
-// Export aggregated data to Google Drive
-Export.image.toDrive({
-  image: tem24,
-  description: 'tem24',
-  scale: 27830,
-  region: roi,
-  fileFormat: 'GeoTIFF'
-});
-Export.image.toDrive({
-  image: tem30,
-  description: 'tem30',
-  scale: 27830,
-  region: roi,
-  fileFormat: 'GeoTIFF'
-});
-Export.image.toDrive({
-  image: pre24,
-  description: 'pre24',
-  scale: 27830,
-  region: roi,
-  fileFormat: 'GeoTIFF'
-});
-Export.image.toDrive({
-  image: pre30,
-  description: 'pre30',
-  scale: 27830,
-  region: roi,
-  fileFormat: 'GeoTIFF'
-});
-```
+The data is downloaded from the WorldClim website and stored in the `./data/4. GeoAI Modeling/` directory,
+with period 2041-2060, GCM：ACCESS-CM2, scenarios:ssp585 (Links:<https://www.worldclim.org/data/cmip6/cmip6_clim30s.html>) .
 
 ### GeoAI modelling
 
@@ -70,26 +24,17 @@ The step uses the gpboost model to fit temperature and precipitation data in 202
 
 ::: {.callout-caution title="Description of steps"}
 1.	Load necessary libraries and data.
-2.	Read the data containing burned area and climate data.
-3.  Process the data to fit the gpboost model.
-4.	Build an gpboost model.
+2.	Build the GPBoost model using the data processed in Section 3.
 :::
 
 See [here](https://towardsdatascience.com/tree-boosting-for-spatial-data-789145d6d97d/?sk=4f9924d378dbb517e883fc9c612c34f1) for more details about the gpboost model on spatio-temporal data.
 
 ```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
 #| code-fold: true
-library(terra)
-pre24 = terra::rast('./data/4. GeoAI Modeling/pre24.tif')
-tem24 = terra::rast('./data/4. GeoAI Modeling/tem24.tif')
-burnedarea = terra::rast('./data/1. Data collection/BurnedArea/BurnedArea_2024.tif') |> 
-  terra::resample(tem24,method = 'average')
-d24 = c(pre24,tem24,burnedarea)
-names(d24) = c("pre","tem","burned")
-d24 = d24 |> 
-  terra::as.polygons(aggregate = FALSE) |> 
-  sf::st_as_sf() |> 
-  dplyr::filter(dplyr::if_all(1:3,\(.x) !is.na(.x)))
+library(sf)
+
+d24 = read_sf('./data/3. Spatial analysis/burnedarea_2024.shp')
+names(d24) = c("pre","tem","burned","geometry")
 d24
 
 library(gpboost)
@@ -109,16 +54,16 @@ In this step, the gpboost model constructed in the previous step is used to pred
 :::
 
 ::: {.callout-caution title="Description of steps"}
-1.	Read the 2030 futural climate data.
+1.	Read the futural climate data.
 2.  Process the data to use the gpboost model to predict.
 3.	Do spatial prediction by the gpboost model.
 :::
 
 ```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
 #| code-fold: true
-pre30 = terra::rast('./data/4. GeoAI Modeling/pre30.tif')
-tem30 = terra::rast('./data/4. GeoAI Modeling/tem30.tif')
-d30 = c(pre30,tem30)
+pref = terra::rast('./data/4. GeoAI Modeling/future_prec.tif')
+temf = terra::rast('./data/4. GeoAI Modeling/future_tmax.tif')
+d30 = c(pref,temf)
 names(d30) = c("pre","tem")
 d30 = d30 |> 
   terra::as.polygons(aggregate = FALSE) |> 
