@@ -9,4 +9,11 @@
 ::: {.callout-note}
 ## Note
 In each section, we will include Tools, Aim, Description of steps, and Code.
+
+Please ensure that RStudio is installed on your computer and that you have signed up for a Google Earth Engine account. Below are the instructions for installing R and RStudio, as well as signing up for Google Earth Engine. Kindly follow the steps provided in the links:
+
+- Guide for Installing R and RStudio:
+<https://rstudio-education.github.io/hopr/starting.html>
+- Guide for Signing Up for Google Earth Engine:
+<https://courses.spatialthoughts.com/gee-sign-up.html>
 :::
