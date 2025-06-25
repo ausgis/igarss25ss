@@ -1,5 +1,16 @@
 # Geospatial artificial intelligence (GeoAI) for remote sensing data
 
+## Background and Simple Examples of Machine Learning
+
+Machine learning (ML) is a set of algorithms that allow computers to learn patterns from data without being explicitly programmed. It has been widely applied in geospatial tasks such as land cover classification, urban growth modeling, and spatial interpolation.
+
+### Example 1: Land Cover Classification
+Using satellite imagery and labeled land cover data, a supervised ML algorithm (e.g., Random Forest) can predict land cover types over a large region.
+
+### Example 2: Predicting PM2.5 Concentrations
+By combining meteorological data and pollution measurements, regression-based ML models can estimate PM2.5 levels across cities.
+
+
 ## GeoAI for spatial prediction of future bushfire 
 
 ### Future climate data collection
