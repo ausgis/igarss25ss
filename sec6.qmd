@@ -1,0 +1,21 @@
+# Brief Introduction to Deep Learning and Transfer Learning
+
+While GPBoost is primarily a structured machine learning method, **deep learning** has shown great promise in handling unstructured remote sensing data, such as imagery or time series.
+
+## What is Deep Learning?
+
+Deep learning models, such as Convolutional Neural Networks (CNNs), are commonly applied to:
+
+- Image classification (e.g., identifying land use types)
+- Object detection (e.g., buildings, roads)
+- Semantic segmentation (e.g., per-pixel classification)
+
+## What is Transfer Learning?
+
+Transfer learning involves fine-tuning a pre-trained model on a new task, which is useful when labeled data are limited. For instance:
+
+> Using a pre-trained ResNet model to classify crop types from drone imagery after fine-tuning on a small local dataset.
+
+## Complementarity with GPBoost
+
+In certain workflows, deep learning can be used for feature extraction (e.g., producing features from images), which are then passed into GPBoost for structured modeling with spatial effects. This hybrid approach leverages both pixel-level detail and geostatistical structure.

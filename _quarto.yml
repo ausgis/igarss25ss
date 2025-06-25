@@ -28,6 +28,8 @@ book:
     - sec2.qmd
     - sec3.qmd
     - sec4.qmd
+    - sec5.qmd
+    - sec6.qmd
     - references.qmd
 
 bibliography: references.bib

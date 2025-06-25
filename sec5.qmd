@@ -1,0 +1,16 @@
+# Student Challenge Example Datasets
+
+To facilitate student participation, we provide several remote sensing-related datasets that can be used directly, or participants may use their own data and study areas.
+
+## Example Datasets
+
+- **Sentinel-2 Land Cover Sample (China)**  
+  A subset of Sentinel-2 imagery with land cover labels across several cities.
+
+- **MODIS NDVI Time-Series Data**  
+  Monthly NDVI values from MODIS over East Asia, useful for modeling vegetation trends.
+
+- **Surface Temperature and Elevation Data (ASTER GDEM + MODIS LST)**  
+  Combined raster datasets useful for spatial regression or GPBoost modeling.
+
+Participants are encouraged to explore these examples or bring their own datasets. GPBoost is especially effective in settings where **structured covariates** (e.g., reflectance bands, indices) and **spatial dependence** exist.

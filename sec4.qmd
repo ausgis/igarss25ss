@@ -2,14 +2,15 @@
 
 ## Background and Simple Examples of Machine Learning
 
-Machine learning (ML) is a set of algorithms that allow computers to learn patterns from data without being explicitly programmed. It has been widely applied in geospatial tasks such as land cover classification, urban growth modeling, and spatial interpolation.
+Machine learning (ML) methods have gained popularity in geospatial research due to their ability to model nonlinear relationships from high-dimensional data. One recent development is **GPBoost**, which integrates tree boosting with Gaussian processes to model both fixed effects and spatial (or other structured) random effects.
 
-### Example 1: Land Cover Classification
-Using satellite imagery and labeled land cover data, a supervised ML algorithm (e.g., Random Forest) can predict land cover types over a large region.
+### Example 1: Land Cover Classification from Remote Sensing Imagery
 
-### Example 2: Predicting PM2.5 Concentrations
-By combining meteorological data and pollution measurements, regression-based ML models can estimate PM2.5 levels across cities.
+Satellite images contain multispectral reflectance values across space. GPBoost can be used to classify land cover by combining decision tree boosting (e.g., LightGBM) with a Gaussian Process that accounts for spatial autocorrelation between nearby pixels.
 
+### Example 2: Spatial Prediction of Vegetation Index
+
+Normalized Difference Vegetation Index (NDVI) values derived from remote sensing data often show spatial dependence. GPBoost allows prediction by combining covariates (e.g., elevation, temperature) with spatial random effects.
 
 ## GeoAI for spatial prediction of future bushfire 
 

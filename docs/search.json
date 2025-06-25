@@ -84,7 +84,7 @@
     "href": "sec4.html",
     "title": "\n4  Geospatial artificial intelligence (GeoAI) for remote sensing data\n",
     "section": "",
-    "text": "4.1 Background and Simple Examples of Machine Learning\nMachine learning (ML) is a set of algorithms that allow computers to learn patterns from data without being explicitly programmed. It has been widely applied in geospatial tasks such as land cover classification, urban growth modeling, and spatial interpolation.",
+    "text": "4.1 Background and Simple Examples of Machine Learning\nMachine learning (ML) methods have gained popularity in geospatial research due to their ability to model nonlinear relationships from high-dimensional data. One recent development is GPBoost, which integrates tree boosting with Gaussian processes to model both fixed effects and spatial (or other structured) random effects.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Geospatial artificial intelligence (GeoAI) for remote sensing data</span>"
     ]
@@ -144,9 +144,69 @@
     "href": "sec4.html#background-and-simple-examples-of-machine-learning",
     "title": "\n4  Geospatial artificial intelligence (GeoAI) for remote sensing data\n",
     "section": "",
-    "text": "4.1.1 Example 1: Land Cover Classification\nUsing satellite imagery and labeled land cover data, a supervised ML algorithm (e.g., Random Forest) can predict land cover types over a large region.\n\n4.1.2 Example 2: Predicting PM2.5 Concentrations\nBy combining meteorological data and pollution measurements, regression-based ML models can estimate PM2.5 levels across cities.",
+    "text": "4.1.1 Example 1: Land Cover Classification from Remote Sensing Imagery\nSatellite images contain multispectral reflectance values across space. GPBoost can be used to classify land cover by combining decision tree boosting (e.g., LightGBM) with a Gaussian Process that accounts for spatial autocorrelation between nearby pixels.\n\n4.1.2 Example 2: Spatial Prediction of Vegetation Index\nNormalized Difference Vegetation Index (NDVI) values derived from remote sensing data often show spatial dependence. GPBoost allows prediction by combining covariates (e.g., elevation, temperature) with spatial random effects.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Geospatial artificial intelligence (GeoAI) for remote sensing data</span>"
+    ]
+  },
+  {
+    "objectID": "sec5.html",
+    "href": "sec5.html",
+    "title": "5  Student Challenge Example Datasets",
+    "section": "",
+    "text": "5.1 Example Datasets\nTo facilitate student participation, we provide several remote sensing-related datasets that can be used directly, or participants may use their own data and study areas.\nParticipants are encouraged to explore these examples or bring their own datasets. GPBoost is especially effective in settings where structured covariates (e.g., reflectance bands, indices) and spatial dependence exist.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Student Challenge Example Datasets</span>"
+    ]
+  },
+  {
+    "objectID": "sec6.html",
+    "href": "sec6.html",
+    "title": "6  Brief Introduction to Deep Learning and Transfer Learning",
+    "section": "",
+    "text": "6.1 What is Deep Learning?\nWhile GPBoost is primarily a structured machine learning method, deep learning has shown great promise in handling unstructured remote sensing data, such as imagery or time series.\nDeep learning models, such as Convolutional Neural Networks (CNNs), are commonly applied to:",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Brief Introduction to Deep Learning and Transfer Learning</span>"
+    ]
+  },
+  {
+    "objectID": "sec6.html#what-is-deep-learning",
+    "href": "sec6.html#what-is-deep-learning",
+    "title": "6  Brief Introduction to Deep Learning and Transfer Learning",
+    "section": "",
+    "text": "Image classification (e.g., identifying land use types)\nObject detection (e.g., buildings, roads)\nSemantic segmentation (e.g., per-pixel classification)",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Brief Introduction to Deep Learning and Transfer Learning</span>"
+    ]
+  },
+  {
+    "objectID": "sec6.html#what-is-transfer-learning",
+    "href": "sec6.html#what-is-transfer-learning",
+    "title": "6  Brief Introduction to Deep Learning and Transfer Learning",
+    "section": "6.2 What is Transfer Learning?",
+    "text": "6.2 What is Transfer Learning?\nTransfer learning involves fine-tuning a pre-trained model on a new task, which is useful when labeled data are limited. For instance:\n\nUsing a pre-trained ResNet model to classify crop types from drone imagery after fine-tuning on a small local dataset.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Brief Introduction to Deep Learning and Transfer Learning</span>"
+    ]
+  },
+  {
+    "objectID": "sec6.html#complementarity-with-gpboost",
+    "href": "sec6.html#complementarity-with-gpboost",
+    "title": "6  Brief Introduction to Deep Learning and Transfer Learning",
+    "section": "6.3 Complementarity with GPBoost",
+    "text": "6.3 Complementarity with GPBoost\nIn certain workflows, deep learning can be used for feature extraction (e.g., producing features from images), which are then passed into GPBoost for structured modeling with spatial effects. This hybrid approach leverages both pixel-level detail and geostatistical structure.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Brief Introduction to Deep Learning and Transfer Learning</span>"
+    ]
+  },
+  {
+    "objectID": "sec5.html#example-datasets",
+    "href": "sec5.html#example-datasets",
+    "title": "5  Student Challenge Example Datasets",
+    "section": "",
+    "text": "Sentinel-2 Land Cover Sample (China)\nA subset of Sentinel-2 imagery with land cover labels across several cities.\nMODIS NDVI Time-Series Data\nMonthly NDVI values from MODIS over East Asia, useful for modeling vegetation trends.\nSurface Temperature and Elevation Data (ASTER GDEM + MODIS LST)\nCombined raster datasets useful for spatial regression or GPBoost modeling.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Student Challenge Example Datasets</span>"
     ]
   }
 ]
