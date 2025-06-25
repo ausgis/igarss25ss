@@ -1,4 +1,4 @@
-# Brief Introduction to Deep Learning and Transfer Learning
+# Brief Introduction to Deep Learning and Transfer Learning {.unnumbered}
 
 While GPBoost is primarily a structured machine learning method, **deep learning** has shown great promise in handling unstructured remote sensing data, such as imagery or time series.
 

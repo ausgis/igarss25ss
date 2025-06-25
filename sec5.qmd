@@ -1,8 +1,8 @@
-# Student Challenge Example Datasets
+# Student Challenge Example Datasets {.unnumbered}
 
 To facilitate student participation, we provide several remote sensing-related datasets that can be used directly, or participants may use their own data and study areas.
 
-## Example Datasets
+### Example Datasets
 
 - **Sentinel-2 Land Cover Sample (China)**  
   A subset of Sentinel-2 imagery with land cover labels across several cities.

@@ -152,51 +152,51 @@
   {
     "objectID": "sec5.html",
     "href": "sec5.html",
-    "title": "5  Student Challenge Example Datasets",
+    "title": "Student Challenge Example Datasets",
     "section": "",
-    "text": "5.1 Example Datasets\nTo facilitate student participation, we provide several remote sensing-related datasets that can be used directly, or participants may use their own data and study areas.\nParticipants are encouraged to explore these examples or bring their own datasets. GPBoost is especially effective in settings where structured covariates (e.g., reflectance bands, indices) and spatial dependence exist.",
+    "text": "To facilitate student participation, we provide several remote sensing-related datasets that can be used directly, or participants may use their own data and study areas.\n\nExample Datasets\n\nSentinel-2 Land Cover Sample (China)\nA subset of Sentinel-2 imagery with land cover labels across several cities.\nMODIS NDVI Time-Series Data\nMonthly NDVI values from MODIS over East Asia, useful for modeling vegetation trends.\nSurface Temperature and Elevation Data (ASTER GDEM + MODIS LST)\nCombined raster datasets useful for spatial regression or GPBoost modeling.\n\nParticipants are encouraged to explore these examples or bring their own datasets. GPBoost is especially effective in settings where structured covariates (e.g., reflectance bands, indices) and spatial dependence exist.",
     "crumbs": [
-      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Student Challenge Example Datasets</span>"
+      "Student Challenge Example Datasets"
     ]
   },
   {
     "objectID": "sec6.html",
     "href": "sec6.html",
-    "title": "6  Brief Introduction to Deep Learning and Transfer Learning",
+    "title": "Brief Introduction to Deep Learning and Transfer Learning",
     "section": "",
-    "text": "6.1 What is Deep Learning?\nWhile GPBoost is primarily a structured machine learning method, deep learning has shown great promise in handling unstructured remote sensing data, such as imagery or time series.\nDeep learning models, such as Convolutional Neural Networks (CNNs), are commonly applied to:",
+    "text": "What is Deep Learning?\nWhile GPBoost is primarily a structured machine learning method, deep learning has shown great promise in handling unstructured remote sensing data, such as imagery or time series.\nDeep learning models, such as Convolutional Neural Networks (CNNs), are commonly applied to:",
     "crumbs": [
-      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Brief Introduction to Deep Learning and Transfer Learning</span>"
+      "Brief Introduction to Deep Learning and Transfer Learning"
     ]
   },
   {
     "objectID": "sec6.html#what-is-deep-learning",
     "href": "sec6.html#what-is-deep-learning",
-    "title": "6  Brief Introduction to Deep Learning and Transfer Learning",
+    "title": "Brief Introduction to Deep Learning and Transfer Learning",
     "section": "",
     "text": "Image classification (e.g., identifying land use types)\nObject detection (e.g., buildings, roads)\nSemantic segmentation (e.g., per-pixel classification)",
     "crumbs": [
-      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Brief Introduction to Deep Learning and Transfer Learning</span>"
+      "Brief Introduction to Deep Learning and Transfer Learning"
     ]
   },
   {
     "objectID": "sec6.html#what-is-transfer-learning",
     "href": "sec6.html#what-is-transfer-learning",
-    "title": "6  Brief Introduction to Deep Learning and Transfer Learning",
-    "section": "6.2 What is Transfer Learning?",
-    "text": "6.2 What is Transfer Learning?\nTransfer learning involves fine-tuning a pre-trained model on a new task, which is useful when labeled data are limited. For instance:\n\nUsing a pre-trained ResNet model to classify crop types from drone imagery after fine-tuning on a small local dataset.",
+    "title": "Brief Introduction to Deep Learning and Transfer Learning",
+    "section": "What is Transfer Learning?",
+    "text": "What is Transfer Learning?\nTransfer learning involves fine-tuning a pre-trained model on a new task, which is useful when labeled data are limited. For instance:\n\nUsing a pre-trained ResNet model to classify crop types from drone imagery after fine-tuning on a small local dataset.",
     "crumbs": [
-      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Brief Introduction to Deep Learning and Transfer Learning</span>"
+      "Brief Introduction to Deep Learning and Transfer Learning"
     ]
   },
   {
     "objectID": "sec6.html#complementarity-with-gpboost",
     "href": "sec6.html#complementarity-with-gpboost",
-    "title": "6  Brief Introduction to Deep Learning and Transfer Learning",
-    "section": "6.3 Complementarity with GPBoost",
-    "text": "6.3 Complementarity with GPBoost\nIn certain workflows, deep learning can be used for feature extraction (e.g., producing features from images), which are then passed into GPBoost for structured modeling with spatial effects. This hybrid approach leverages both pixel-level detail and geostatistical structure.",
+    "title": "Brief Introduction to Deep Learning and Transfer Learning",
+    "section": "Complementarity with GPBoost",
+    "text": "Complementarity with GPBoost\nIn certain workflows, deep learning can be used for feature extraction (e.g., producing features from images), which are then passed into GPBoost for structured modeling with spatial effects. This hybrid approach leverages both pixel-level detail and geostatistical structure.",
     "crumbs": [
-      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Brief Introduction to Deep Learning and Transfer Learning</span>"
+      "Brief Introduction to Deep Learning and Transfer Learning"
     ]
   },
   {
