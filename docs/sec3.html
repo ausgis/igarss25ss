@@ -210,9 +210,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 </header><p>We demonstrate a spatial analysis workflow using the 2024 climate and bushfire data as an example.</p>
-<p>We will perform spatial hot spot and cold spot analysis using the <strong>rgeoda</strong> package and conduct spatial stratified heterogeneity analysis using the <strong>gdverse</strong> package.</p>
+<p>We will perform spatial hot spot and cold spot analysis using the <a href="https://cran.r-project.org/web/packages/rgeoda/index.html"><strong>rgeoda</strong></a> package and conduct spatial stratified heterogeneity analysis using the <a href="https://cran.r-project.org/web/packages/GD/vignettes/GD.html"><strong>GD</strong></a> package.</p>
 <p>You can install the required packages using the following commands in the R console:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"sf"</span>,<span class="st">"terra"</span>,<span class="st">"tidyverse"</span>,<span class="st">"rgeoda"</span>,<span class="st">"gdverse"</span>,<span class="st">"gpboost"</span><span class="op">)</span>,dep <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"sf"</span>,<span class="st">"terra"</span>,<span class="st">"tidyverse"</span>,<span class="st">"rgeoda"</span>,<span class="st">"GD"</span>,<span class="st">"gpboost"</span><span class="op">)</span>,dep <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now we read the data to R and perform some basic data exploration：</p>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/">terra</a></span><span class="op">)</span></span>
@@ -384,7 +384,7 @@ Aim
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This step is designed to identify the climatic driving factors of bushfire burned area. We will use the <strong>gdverse</strong> package to analyze the power of determinant of climatic drivers on bushfire burned area based on the optimal parameter geographical detector model.</p>
+<p>This step is designed to identify the climatic driving factors of bushfire burned area. We will use the <a href="https://cran.r-project.org/web/packages/GD/vignettes/GD.html"><strong>GD</strong></a> package to analyze the power of determinant of climatic drivers on bushfire burned area based on the optimal parameter geographical detector model.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-caution callout-titled" title="Description of steps">
@@ -401,35 +401,224 @@ Description of steps
 <li>Load necessary libraries (sf for spatial data and gdverse for geographical detector analysis).</li>
 <li>Read the burned area and climate data.</li>
 <li>Run the OPGD model.</li>
-<li>Plot the result.</li>
 </ol>
 </div>
 </div>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://stscl.github.io/gdverse/">gdverse</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ausgis/GD">GD</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">burnedarea</span> <span class="op">=</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">read_sf</a></span><span class="op">(</span><span class="st">'./data/3. Spatial analysis/burnedarea_2024.shp'</span><span class="op">)</span></span>
-<span><span class="va">opgd.m</span> <span class="op">=</span> <span class="fu"><a href="https://stscl.github.io/gdverse/reference/opgd.html">opgd</a></span><span class="op">(</span><span class="va">burnedarea</span><span class="op">~</span><span class="va">tem</span><span class="op">+</span><span class="va">pre</span>, data <span class="op">=</span> <span class="va">burnedarea</span>, discnum <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">15</span><span class="op">)</span></span>
+<span><span class="va">opgd.m</span> <span class="op">=</span> <span class="fu"><a href="https://ausgis.github.io/GD/reference/gdm.html">gdm</a></span><span class="op">(</span><span class="va">burnedarea</span><span class="op">~</span><span class="va">tem</span><span class="op">+</span><span class="va">pre</span>, </span>
+<span>             continuous_variable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"tem"</span>, <span class="st">"pre"</span><span class="op">)</span>,</span>
+<span>             data <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_drop_geometry</a></span><span class="op">(</span><span class="va">burnedarea</span><span class="op">)</span>,</span>
+<span>             discmethod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"equal"</span>,<span class="st">"natural"</span>,<span class="st">"quantile"</span><span class="op">)</span>, </span>
+<span>             discitv <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">15</span><span class="op">)</span></span>
 <span><span class="va">opgd.m</span></span>
-<span><span class="co"># ***   Optimal Parameters-based Geographical Detector     </span></span>
-<span><span class="co">#                 Factor Detector            </span></span>
+<span><span class="co"># Explanatory variables include 2 continuous variables.</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># | variable | Q-statistic | P-value  |</span></span>
-<span><span class="co"># |:--------:|:-----------:|:--------:|</span></span>
-<span><span class="co"># |   tem    |   0.1318    | 1.23e-10 |</span></span>
-<span><span class="co"># |   pre    |   0.0719    | 8.06e-05 |</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">opgd.m</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details><div class="cell-output-display">
-<div id="fig-opgd" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-opgd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="sec3_files/figure-html/fig-opgd-1.png" class="img-fluid figure-img" style="width:100.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-opgd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.4: Climatic driving factors of bushfire burned area
-</figcaption></figure>
-</div>
-</div>
+<span><span class="co"># optimal discretization result of tem</span></span>
+<span><span class="co"># method             :  quantile</span></span>
+<span><span class="co"># number of intervals:  13</span></span>
+<span><span class="co"># intervals:</span></span>
+<span><span class="co">#  26.7 26.8 27 27.2 27.3 27.5 27.7 27.7 27.7 27.8 27.9 28 28 28.2</span></span>
+<span><span class="co"># numbers of data within intervals:</span></span>
+<span><span class="co">#  52 47 52 47 53 47 50 49 50 50 48 50 49</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># optimal discretization result of pre</span></span>
+<span><span class="co"># method             :  natural</span></span>
+<span><span class="co"># number of intervals:  14</span></span>
+<span><span class="co"># intervals:</span></span>
+<span><span class="co">#  1589 1650 1712 1736 1758 1787 1816 1844 1870 1896 1924 1949 1977 2011 2067</span></span>
+<span><span class="co"># numbers of data within intervals:</span></span>
+<span><span class="co">#  3 16 71 40 40 44 50 76 68 62 57 52 43 22</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># Geographical detectors results:</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># Factor detector:</span></span>
+<span><span class="co">#   variable     qv      sig</span></span>
+<span><span class="co"># 1      tem 0.1301 1.79e-10</span></span>
+<span><span class="co"># 2      pre 0.0733 2.86e-05</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># Risk detector:</span></span>
+<span><span class="co"># tem</span></span>
+<span><span class="co">#              itv meanrisk</span></span>
+<span><span class="co"># 1   [26.69,26.8]     3730</span></span>
+<span><span class="co"># 2   (26.8,27.02]     4871</span></span>
+<span><span class="co"># 3   (27.02,27.2]     5984</span></span>
+<span><span class="co"># 4   (27.2,27.33]     5647</span></span>
+<span><span class="co"># 5  (27.33,27.51]     5514</span></span>
+<span><span class="co"># 6  (27.51,27.66]     9252</span></span>
+<span><span class="co"># 7  (27.66,27.69]     8948</span></span>
+<span><span class="co"># 8  (27.69,27.74]     6647</span></span>
+<span><span class="co"># 9  (27.74,27.83]     9489</span></span>
+<span><span class="co"># 10 (27.83,27.91]     7340</span></span>
+<span><span class="co"># 11 (27.91,27.96]     5083</span></span>
+<span><span class="co"># 12 (27.96,28.02]     7738</span></span>
+<span><span class="co"># 13 (28.02,28.16]     7136</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># pre</span></span>
+<span><span class="co">#                    itv meanrisk</span></span>
+<span><span class="co"># 1  [1.59e+03,1.65e+03]     3435</span></span>
+<span><span class="co"># 2  (1.65e+03,1.71e+03]     5166</span></span>
+<span><span class="co"># 3  (1.71e+03,1.74e+03]     4348</span></span>
+<span><span class="co"># 4  (1.74e+03,1.76e+03]     4829</span></span>
+<span><span class="co"># 5  (1.76e+03,1.79e+03]     7293</span></span>
+<span><span class="co"># 6  (1.79e+03,1.82e+03]     5739</span></span>
+<span><span class="co"># 7  (1.82e+03,1.84e+03]     6155</span></span>
+<span><span class="co"># 8  (1.84e+03,1.87e+03]     7578</span></span>
+<span><span class="co"># 9   (1.87e+03,1.9e+03]     7887</span></span>
+<span><span class="co"># 10  (1.9e+03,1.92e+03]     7212</span></span>
+<span><span class="co"># 11 (1.92e+03,1.95e+03]     7933</span></span>
+<span><span class="co"># 12 (1.95e+03,1.98e+03]     8390</span></span>
+<span><span class="co"># 13 (1.98e+03,2.01e+03]     6340</span></span>
+<span><span class="co"># 14 (2.01e+03,2.07e+03]     7009</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># tem</span></span>
+<span><span class="co">#         interval [26.69,26.8] (26.8,27.02] (27.02,27.2]</span></span>
+<span><span class="co"># 1   [26.69,26.8]         &lt;NA&gt;         &lt;NA&gt;         &lt;NA&gt;</span></span>
+<span><span class="co"># 2   (26.8,27.02]            N         &lt;NA&gt;         &lt;NA&gt;</span></span>
+<span><span class="co"># 3   (27.02,27.2]            Y            N         &lt;NA&gt;</span></span>
+<span><span class="co"># 4   (27.2,27.33]            Y            N            N</span></span>
+<span><span class="co"># 5  (27.33,27.51]            Y            N            N</span></span>
+<span><span class="co"># 6  (27.51,27.66]            Y            Y            Y</span></span>
+<span><span class="co"># 7  (27.66,27.69]            Y            Y            Y</span></span>
+<span><span class="co"># 8  (27.69,27.74]            Y            Y            N</span></span>
+<span><span class="co"># 9  (27.74,27.83]            Y            Y            Y</span></span>
+<span><span class="co"># 10 (27.83,27.91]            Y            Y            N</span></span>
+<span><span class="co"># 11 (27.91,27.96]            N            N            N</span></span>
+<span><span class="co"># 12 (27.96,28.02]            Y            Y            N</span></span>
+<span><span class="co"># 13 (28.02,28.16]            Y            Y            N</span></span>
+<span><span class="co">#    (27.2,27.33] (27.33,27.51] (27.51,27.66] (27.66,27.69]</span></span>
+<span><span class="co"># 1          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 2          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 3          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 4          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 5             N          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 6             Y             Y          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 7             Y             Y             N          &lt;NA&gt;</span></span>
+<span><span class="co"># 8             N             N             Y             Y</span></span>
+<span><span class="co"># 9             Y             Y             N             N</span></span>
+<span><span class="co"># 10            N             Y             Y             N</span></span>
+<span><span class="co"># 11            N             N             Y             Y</span></span>
+<span><span class="co"># 12            Y             Y             N             N</span></span>
+<span><span class="co"># 13            N             N             Y             N</span></span>
+<span><span class="co">#    (27.69,27.74] (27.74,27.83] (27.83,27.91] (27.91,27.96]</span></span>
+<span><span class="co"># 1           &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 2           &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 3           &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 4           &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 5           &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 6           &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 7           &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 8           &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 9              Y          &lt;NA&gt;          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 10             N             Y          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 11             N             Y             Y          &lt;NA&gt;</span></span>
+<span><span class="co"># 12             N             N             N             Y</span></span>
+<span><span class="co"># 13             N             Y             N             N</span></span>
+<span><span class="co">#    (27.96,28.02] (28.02,28.16]</span></span>
+<span><span class="co"># 1           &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 2           &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 3           &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 4           &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 5           &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 6           &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 7           &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 8           &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 9           &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 10          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 11          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 12          &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co"># 13             N          &lt;NA&gt;</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># pre</span></span>
+<span><span class="co">#               interval [1.59e+03,1.65e+03] (1.65e+03,1.71e+03]</span></span>
+<span><span class="co"># 1  [1.59e+03,1.65e+03]                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 2  (1.65e+03,1.71e+03]                   N                &lt;NA&gt;</span></span>
+<span><span class="co"># 3  (1.71e+03,1.74e+03]                   N                   N</span></span>
+<span><span class="co"># 4  (1.74e+03,1.76e+03]                   N                   N</span></span>
+<span><span class="co"># 5  (1.76e+03,1.79e+03]                   Y                   Y</span></span>
+<span><span class="co"># 6  (1.79e+03,1.82e+03]                   N                   N</span></span>
+<span><span class="co"># 7  (1.82e+03,1.84e+03]                   N                   N</span></span>
+<span><span class="co"># 8  (1.84e+03,1.87e+03]                   Y                   Y</span></span>
+<span><span class="co"># 9   (1.87e+03,1.9e+03]                   Y                   Y</span></span>
+<span><span class="co"># 10  (1.9e+03,1.92e+03]                   Y                   N</span></span>
+<span><span class="co"># 11 (1.92e+03,1.95e+03]                   Y                   Y</span></span>
+<span><span class="co"># 12 (1.95e+03,1.98e+03]                   Y                   Y</span></span>
+<span><span class="co"># 13 (1.98e+03,2.01e+03]                   N                   N</span></span>
+<span><span class="co"># 14 (2.01e+03,2.07e+03]                   N                   N</span></span>
+<span><span class="co">#    (1.71e+03,1.74e+03] (1.74e+03,1.76e+03] (1.76e+03,1.79e+03]</span></span>
+<span><span class="co"># 1                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 2                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 3                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 4                    N                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 5                    Y                   Y                &lt;NA&gt;</span></span>
+<span><span class="co"># 6                    N                   N                   N</span></span>
+<span><span class="co"># 7                    Y                   N                   N</span></span>
+<span><span class="co"># 8                    Y                   Y                   N</span></span>
+<span><span class="co"># 9                    Y                   Y                   N</span></span>
+<span><span class="co"># 10                   Y                   Y                   N</span></span>
+<span><span class="co"># 11                   Y                   Y                   N</span></span>
+<span><span class="co"># 12                   Y                   Y                   N</span></span>
+<span><span class="co"># 13                   Y                   N                   N</span></span>
+<span><span class="co"># 14                   Y                   N                   N</span></span>
+<span><span class="co">#    (1.79e+03,1.82e+03] (1.82e+03,1.84e+03] (1.84e+03,1.87e+03]</span></span>
+<span><span class="co"># 1                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 2                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 3                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 4                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 5                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 6                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 7                    N                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 8                    N                   N                &lt;NA&gt;</span></span>
+<span><span class="co"># 9                    Y                   N                   N</span></span>
+<span><span class="co"># 10                   N                   N                   N</span></span>
+<span><span class="co"># 11                   Y                   Y                   N</span></span>
+<span><span class="co"># 12                   Y                   Y                   N</span></span>
+<span><span class="co"># 13                   N                   N                   N</span></span>
+<span><span class="co"># 14                   N                   N                   N</span></span>
+<span><span class="co">#    (1.87e+03,1.9e+03] (1.9e+03,1.92e+03] (1.92e+03,1.95e+03]</span></span>
+<span><span class="co"># 1                &lt;NA&gt;               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 2                &lt;NA&gt;               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 3                &lt;NA&gt;               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 4                &lt;NA&gt;               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 5                &lt;NA&gt;               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 6                &lt;NA&gt;               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 7                &lt;NA&gt;               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 8                &lt;NA&gt;               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 9                &lt;NA&gt;               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 10                  N               &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 11                  N                  N                &lt;NA&gt;</span></span>
+<span><span class="co"># 12                  N                  N                   N</span></span>
+<span><span class="co"># 13                  N                  N                   N</span></span>
+<span><span class="co"># 14                  N                  N                   N</span></span>
+<span><span class="co">#    (1.95e+03,1.98e+03] (1.98e+03,2.01e+03] (2.01e+03,2.07e+03]</span></span>
+<span><span class="co"># 1                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 2                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 3                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 4                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 5                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 6                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 7                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 8                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 9                 &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 10                &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 11                &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 12                &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 13                   Y                &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co"># 14                   N                   N                &lt;NA&gt;</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># Interaction detector:</span></span>
+<span><span class="co">#   variable   tem pre</span></span>
+<span><span class="co"># 1      tem    NA  NA</span></span>
+<span><span class="co"># 2      pre 0.321  NA</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># Ecological detector:</span></span>
+<span><span class="co">#   variable  tem  pre</span></span>
+<span><span class="co"># 1      tem &lt;NA&gt; &lt;NA&gt;</span></span>
+<span><span class="co"># 2      pre    Y &lt;NA&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 
 
@@ -899,12 +1088,12 @@ Figure&nbsp;3.4: Climatic driving factors of bushfire burned area
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>We demonstrate a spatial analysis workflow using the 2024 climate and bushfire data as an example.</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>We will perform spatial hot spot and cold spot analysis using the **rgeoda** package and conduct spatial stratified heterogeneity analysis using the **gdverse** package.</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>We will perform spatial hot spot and cold spot analysis using the <span class="co">[</span><span class="ot">**rgeoda**</span><span class="co">](https://cran.r-project.org/web/packages/rgeoda/index.html)</span> package and conduct spatial stratified heterogeneity analysis using the <span class="co">[</span><span class="ot">**GD**</span><span class="co">](https://cran.r-project.org/web/packages/GD/vignettes/GD.html)</span> package.</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>You can install the required packages using the following commands in the R console:</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="in">```r</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"sf"</span>,<span class="st">"terra"</span>,<span class="st">"tidyverse"</span>,<span class="st">"rgeoda"</span>,<span class="st">"gdverse"</span>,<span class="st">"gpboost"</span>),<span class="at">dep =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"sf"</span>,<span class="st">"terra"</span>,<span class="st">"tidyverse"</span>,<span class="st">"rgeoda"</span>,<span class="st">"GD"</span>,<span class="st">"gpboost"</span>),<span class="at">dep =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>Now we read the data to R and perform some basic data exploration：</span>
@@ -997,28 +1186,30 @@ Figure&nbsp;3.4: Climatic driving factors of bushfire burned area
 <span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a><span class="fu">## Geographical detector for spatial heterogeneity and factor analysis</span></span>
 <span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip title="Aim"}</span>
-<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>This step is designed to identify the climatic driving factors of bushfire burned area. We will use the **gdverse** package to analyze the power of determinant of climatic drivers on bushfire burned area based on the optimal parameter geographical detector model.</span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>This step is designed to identify the climatic driving factors of bushfire burned area. We will use the <span class="co">[</span><span class="ot">**GD**</span><span class="co">](https://cran.r-project.org/web/packages/GD/vignettes/GD.html)</span> package to analyze the power of determinant of climatic drivers on bushfire burned area based on the optimal parameter geographical detector model.</span>
 <span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution title="Description of steps"}</span>
 <span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Load necessary libraries (sf for spatial data and gdverse for geographical detector analysis).</span>
 <span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Read the burned area and climate data.</span>
 <span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Run the OPGD model.</span>
-<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Plot the result.</span>
-<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a><span class="in">```{r fig-opgd, cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}</span></span>
-<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig.cap: "Climatic driving factors of bushfire burned area"</span></span>
-<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig.height: 3.5</span></span>
-<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gdverse)</span>
-<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a>burnedarea <span class="ot">=</span> <span class="fu">read_sf</span>(<span class="st">'./data/3. Spatial analysis/burnedarea_2024.shp'</span>)</span>
-<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>opgd.m <span class="ot">=</span> <span class="fu">opgd</span>(burnedarea<span class="sc">~</span>tem<span class="sc">+</span>pre, <span class="at">data =</span> burnedarea, <span class="at">discnum =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">15</span>)</span>
-<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>opgd.m</span>
-<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(opgd.m)</span>
-<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a><span class="in">```{r fig-opgd, cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}</span></span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig.cap: "Climatic driving factors of bushfire burned area"</span></span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig.height: 8.5</span></span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GD)</span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>burnedarea <span class="ot">=</span> <span class="fu">read_sf</span>(<span class="st">'./data/3. Spatial analysis/burnedarea_2024.shp'</span>)</span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a>opgd.m <span class="ot">=</span> <span class="fu">gdm</span>(burnedarea<span class="sc">~</span>tem<span class="sc">+</span>pre, </span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>             <span class="at">continuous_variable =</span> <span class="fu">c</span>(<span class="st">"tem"</span>, <span class="st">"pre"</span>),</span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> sf<span class="sc">::</span><span class="fu">st_drop_geometry</span>(burnedarea),</span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>             <span class="at">discmethod =</span> <span class="fu">c</span>(<span class="st">"equal"</span>,<span class="st">"natural"</span>,<span class="st">"quantile"</span>), </span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>             <span class="at">discitv =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">15</span>)</span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>opgd.m</span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
