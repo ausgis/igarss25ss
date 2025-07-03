@@ -1,16 +1,16 @@
 # Student Challenge Example Datasets {.unnumbered}
 
-To facilitate student participation, we provide several remote sensing-related datasets that can be used directly, or participants may use their own data and study areas.
+To facilitate student participation, we provide several example geospatial datasets that can be used directly, or participants may use their own data and study areas.
 
 ### Example Datasets
 
-- **Sentinel-2 Land Cover Sample (China)**  
-  A subset of Sentinel-2 imagery with land cover labels across several cities.
+* **Butte County, California (USA)**
+  Site of the 2018 Camp Fire, the deadliest wildfire in California history. Suitable for studying extreme wildfire impacts and recovery.
 
-- **MODIS NDVI Time-Series Data**  
-  Monthly NDVI values from MODIS over East Asia, useful for modeling vegetation trends.
+* **Shasta County, California (USA)**
+  Known for recurring large wildfires, including the 2018 Carr Fire. Features varied topography and dense vegetation.
 
-- **Surface Temperature and Elevation Data (ASTER GDEM + MODIS LST)**  
-  Combined raster datasets useful for spatial regression or GPBoost modeling.
+* **Boulder County, Colorado (USA)**
+  Located at the plains-mountain interface. High wildfire risk due to dry grasslands, suburban expansion, and strong wind events.
 
 Participants are encouraged to explore these examples or bring their own datasets. GPBoost is especially effective in settings where **structured covariates** (e.g., reflectance bands, indices) and **spatial dependence** exist.
