@@ -5,12 +5,12 @@ To facilitate student participation, we provide several example geospatial datas
 ### Example Datasets
 
 * **Butte County, California (USA)**
-  Site of the 2018 Camp Fire, the deadliest wildfire in California history. Suitable for studying extreme wildfire impacts and recovery.
+  Site of the 2018 Camp Fire, the deadliest wildfire in California history. Suitable for studying extreme wildfire impacts and recovery. [data file](https://github.com/ausgis/igarss25ss/tree/main/data/student_challenge_datasets/butte)
 
 * **Shasta County, California (USA)**
-  Known for recurring large wildfires, including the 2018 Carr Fire. Features varied topography and dense vegetation.
+  Known for recurring large wildfires, including the 2018 Carr Fire. Features varied topography and dense vegetation. [data file](https://github.com/ausgis/igarss25ss/tree/main/data/student_challenge_datasets/shasta)
 
 * **Boulder County, Colorado (USA)**
-  Located at the plains-mountain interface. High wildfire risk due to dry grasslands, suburban expansion, and strong wind events.
+  Located at the plains-mountain interface. High wildfire risk due to dry grasslands, suburban expansion, and strong wind events. [data file](https://github.com/ausgis/igarss25ss/tree/main/data/student_challenge_datasets/boulder)
 
 Participants are encouraged to explore these examples or bring their own datasets. GPBoost is especially effective in settings where **structured covariates** (e.g., reflectance bands, indices) and **spatial dependence** exist.
