@@ -2,12 +2,12 @@
 
 We demonstrate a spatial analysis workflow using the 2024 climate and bushfire data as an example.
 
-We will perform spatial hot spot and cold spot analysis using the **rgeoda** package and conduct spatial stratified heterogeneity analysis using the **gdverse** package.
+We will perform spatial hot spot and cold spot analysis using the [**rgeoda**](https://cran.r-project.org/web/packages/rgeoda/index.html) package and conduct spatial stratified heterogeneity analysis using the [**GD**](https://cran.r-project.org/web/packages/GD/vignettes/GD.html) package.
 
 You can install the required packages using the following commands in the R console:
 
 ```r
-install.packages(c("sf","terra","tidyverse","rgeoda","gdverse","gpboost"),dep = TRUE)
+install.packages(c("sf","terra","tidyverse","rgeoda","GD","gpboost"),dep = TRUE)
 ```
 
 Now we read the data to R and perform some basic data exploration：
@@ -100,25 +100,27 @@ ggplot(burnedarea) +
 ## Geographical detector for spatial heterogeneity and factor analysis
 
 ::: {.callout-tip title="Aim"}
-This step is designed to identify the climatic driving factors of bushfire burned area. We will use the **gdverse** package to analyze the power of determinant of climatic drivers on bushfire burned area based on the optimal parameter geographical detector model.
+This step is designed to identify the climatic driving factors of bushfire burned area. We will use the [**GD**](https://cran.r-project.org/web/packages/GD/vignettes/GD.html) package to analyze the power of determinant of climatic drivers on bushfire burned area based on the optimal parameter geographical detector model.
 :::
 
 ::: {.callout-caution title="Description of steps"}
 1.	Load necessary libraries (sf for spatial data and gdverse for geographical detector analysis).
 2.	Read the burned area and climate data.
 3.	Run the OPGD model.
-4.	Plot the result.
 :::
 
 ```{r fig-opgd, cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
 #| fig.cap: "Climatic driving factors of bushfire burned area"
 #| code-fold: true
-#| fig.height: 3.5
+#| fig.height: 8.5
 library(sf)
-library(gdverse)
+library(GD)
 
 burnedarea = read_sf('./data/3. Spatial analysis/burnedarea_2024.shp')
-opgd.m = opgd(burnedarea~tem+pre, data = burnedarea, discnum = 3:15)
+opgd.m = gdm(burnedarea~tem+pre, 
+             continuous_variable = c("tem", "pre"),
+             data = sf::st_drop_geometry(burnedarea),
+             discmethod = c("equal","natural","quantile"), 
+             discitv = 3:15)
 opgd.m
-plot(opgd.m)
 ```
