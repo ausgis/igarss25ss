@@ -4,6 +4,14 @@ To facilitate student participation, we provide several example geospatial datas
 
 ### Example Datasets
 
+* **Blue Mountains, New South Wales (Australia)**  
+  A fire-prone mountainous region just west of Sydney, frequently affected by extreme bushfires such as the 2019–2020 Black Summer fires. Useful for studying peri-urban wildfire risk and climate influence.  
+  [data file](https://github.com/ausgis/igarss25ss/tree/main/data/student_challenge_datasets/sydney_100km)
+
+* **Alpine Region, Victoria (Australia)**  
+  Located in the Victorian Alps northeast of Melbourne, this high-risk bushfire area experiences repeated large-scale wildfires due to dry summers and rugged terrain.  
+  [data file](https://github.com/ausgis/igarss25ss/tree/main/data/student_challenge_datasets/victoria_100km)
+
 * **Butte County, California (USA)**
   Site of the 2018 Camp Fire, the deadliest wildfire in California history. Suitable for studying extreme wildfire impacts and recovery. [data file](https://github.com/ausgis/igarss25ss/tree/main/data/student_challenge_datasets/butte)
 
