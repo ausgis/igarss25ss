@@ -37,6 +37,7 @@ The step uses the gpboost model to fit temperature and precipitation data in 202
 ::: {.callout-caution title="Description of steps"}
 1.	Load necessary libraries and data.
 2.	Build the GPBoost model using the data processed in Section 3.
+3. You can also explore traditional machine learning models using the [`caret`](https://topepo.github.io/caret/) package.
 :::
 
 See [here](https://towardsdatascience.com/tree-boosting-for-spatial-data-789145d6d97d/?sk=4f9924d378dbb517e883fc9c612c34f1) for more details about the gpboost model on spatio-temporal data.
@@ -57,6 +58,60 @@ bst = gpboost(data = as.matrix(sf::st_drop_geometry(d24)[,1:2]),
               label = as.matrix(sf::st_drop_geometry(d24)[,3,drop = FALSE]), 
               gp_model = gp_model, objective = "regression_l2", verbose = 0)
 bst
+```
+
+Example: Machine learning using caret
+
+```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
+#| code-fold: true
+library(caret)
+
+# Prepare non-spatial data
+df = sf::st_drop_geometry(d24)
+
+# Train linear model with 5-fold CV
+ctrl = trainControl(method = "cv", number = 5)
+
+model_caret = train(
+  burned ~ pre + tem, 
+  data = df, 
+  method = "lm", 
+  trControl = ctrl
+)
+
+model_caret
+```
+
+### Model validation
+
+::: {.callout-note title="Why model validation?"}
+Model validation ensures that your model performs well on unseen data and helps avoid overfitting.
+:::
+
+#### Common validation methods
+- **Train/test split**
+- **K-fold cross-validation**
+- **Leave-one-out cross-validation (LOOCV)**
+
+#### Common evaluation metrics
+- **RMSE** (Root Mean Squared Error)  
+- **MAE** (Mean Absolute Error)  
+- **R²** (Coefficient of determination)
+
+#### Example: Random forest model with RMSE
+
+```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
+#| code-fold: true
+set.seed(123)
+model_rf = train(
+  burned ~ pre + tem, 
+  data = df, 
+  method = "rf", 
+  trControl = ctrl,
+  metric = "RMSE"
+)
+
+model_rf$results
 ```
 
 ### Spatial prediction
@@ -97,8 +152,6 @@ d30
 pred = predict(bst, data = as.matrix(sf::st_drop_geometry(d30)[,1:2]), 
                gp_coords_pred = sdsfun::sf_coordinates(d30), 
                predict_var = TRUE, pred_latent = FALSE)
-
-pred
 
 d30$burned = pred$response_mean
 d30
