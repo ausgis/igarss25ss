@@ -1,4 +1,4 @@
-# Student Challenge Example Datasets {.unnumbered}
+# Practice and Example Datasets {.unnumbered}
 
 To facilitate student participation, we provide several example geospatial datasets that can be used directly (including temperature, precipitation, and wildfire burn area data for the corresponding regions in 2024), or participants may use their own data and study areas.
 

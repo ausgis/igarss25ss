@@ -98,8 +98,6 @@ pred = predict(bst, data = as.matrix(sf::st_drop_geometry(d30)[,1:2]),
                gp_coords_pred = sdsfun::sf_coordinates(d30), 
                predict_var = TRUE, pred_latent = FALSE)
 
-pred
-
 d30$burned = pred$response_mean
 d30
 ```
