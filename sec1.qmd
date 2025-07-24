@@ -56,7 +56,7 @@ for (var year = 2000; year <= 2024; year++) {
 }
 ```
 
-The GEE code link: <https://code.earthengine.google.com/c4c9731308de7f49c6e468c3daa8cb03> .
+The GEE code link: <https://code.earthengine.google.com/d82182549c638d61a9e2ddee4e65b466> .
 
 ## Collecting climate data
 
@@ -110,7 +110,7 @@ for (var year = 2000; year <= 2024; year++) {
 }
 ```
 
-The GEE code link: <https://code.earthengine.google.com/5a7f743bb1d0bd174f1d199e26dc4d61> .
+The GEE code link: <https://code.earthengine.google.com/7f49ceb9af5b14a83ca3b547d09ea433> .
 
 - **Precipitation**
 
@@ -160,4 +160,4 @@ for (var year = 2000; year <= 2024; year++) {
 }
 ```
 
-The GEE code link: <https://code.earthengine.google.com/e8b09a65c7d506243e0895d7b6af4e41> .
+The GEE code link: <https://code.earthengine.google.com/8e0573849ffa323cbbcd6bbf74695bed> .
