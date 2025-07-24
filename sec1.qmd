@@ -21,7 +21,7 @@ This code is designed to compute and export the annual burned area from the MODI
 5.	Apply an aggregation method (e.g., mean) to summarize burned area data.
 6.	Clip the data to the Region of Interest (ROI).
 7.	Export the processed burned area data to Google Drive as a GeoTIFF.
-8.	Loop through the desired years (2023-2024) and execute the function.
+8.	Loop through the desired years (2000-2024) and execute the function.
 :::
 
 ```js
