@@ -50,8 +50,8 @@ function exportYearlyBurnedArea(year) {
   });
 }
 
-// Loop through and export data for the years 2000 to 2023
-for (var year = 2023; year <= 2024; year++) {
+// Loop through and export data for the years 2000 to 2024
+for (var year = 2000; year <= 2024; year++) {
   exportYearlyBurnedArea(year);
 }
 ```
@@ -105,7 +105,7 @@ function exportYearlyTemperature(year) {
 }
 
 // Loop to calculate the annual mean temperature for the years 2000-2024
-for (var year = 2002; year <= 2002; year++) {
+for (var year = 2000; year <= 2024; year++) {
   exportYearlyTemperature(year);
 }
 ```
