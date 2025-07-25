@@ -26,10 +26,10 @@ library(sf)
 library(dplyr)
 
 # Read the shapefile
-grid <- st_read("/your_path_here/grid5_Sta.shp")
+grid <- st_read("./data/2. Temporal analysis/grid_Sta/grid_Sta.shp")
 
 # Extract column names (ensure column order matches years)
-ba_cols <- paste0("BA_", 2000:2024)  # Burned area for 25 years
+ba_cols <- paste0("BA", 2000:2024)  # Burned area for 25 years
 
 # Create a sequence of years (independent variable)
 years <- 2000:2024
@@ -46,7 +46,7 @@ grid <- grid %>%
   ungroup()
 
 # Save the new shapefile
-st_write(grid, "/your_path_here/grid5_Linear.shp", delete_layer = TRUE)
+st_write(grid, "./data/2. Temporal analysis/grid5_Linear.shp", delete_layer = TRUE)
 ```
 
 *Code (Python version):*
@@ -57,11 +57,11 @@ import numpy as np
 from scipy.stats import linregress
 
 # Read the Shapefile
-gdf = gpd.read_file("/your_path_here/grid5_Sta.shp")
+gdf = gpd.read_file("./data/2. Temporal analysis/grid_Sta/grid_Sta.shp")
 
 # Extract column names for the time series
 years = list(range(2000, 2025))  # 2000 to 2024
-columns = [f"BA_{year}" for year in years]
+columns = [f"BA{year}" for year in years]
 
 # Ensure all columns exist in the dataset
 columns = [col for col in columns if col in gdf.columns]
@@ -80,7 +80,7 @@ def compute_slope(row):
 gdf["BA_slope"] = gdf.apply(compute_slope, axis=1)
 
 # Save the results
-gdf.to_file("/your_path_here/grid5_Sta_slope.shp")
+gdf.to_file("./data/2. Temporal analysis/grid5_Sta_slope.shp")
 
 print("Linear regression calculation completed, results saved.")
 ```
@@ -113,10 +113,10 @@ library(sf)
 library(dplyr)
 
 # Read the shapefile
-grid <- st_read("/your_path_here/grid5_Sta.shp")
+grid <- st_read("./data/2. Temporal analysis/grid_Sta/grid_Sta.shp")
 
 # Extract column names (ensure column order matches years)
-ba_cols <- paste0("BA_", 2000:2024)   # Burned area columns
+ba_cols <- paste0("BA", 2000:2024)   # Burned area columns
 pre_cols <- paste0("Pre", 2000:2024)  # Precipitation columns
 tem_cols <- paste0("Tem", 2000:2024)  # Temperature columns
 
@@ -141,7 +141,7 @@ grid <- grid %>%
   ungroup()
 
 # Save the new shapefile
-st_write(grid, "/your_path_here/grid5_Cor.shp", delete_layer = TRUE)
+st_write(grid, "./data/2. Temporal analysis/grid5_Cor.shp", delete_layer = TRUE)
 ```
 
 *Code (Python version):*
@@ -153,11 +153,11 @@ import pandas as pd
 from scipy.stats import pearsonr
 
 # Read the Shapefile
-gdf = gpd.read_file("/your_path_here/grid5_Sta_slope.shp")
+gdf = gpd.read_file("./data/2. Temporal analysis/grid_Sta/grid_Sta.shp")
 
 # Extract column names for the time series
 years = list(range(2000, 2025))  # 2000 to 2024
-ba_columns = [f"BA_{year}" for year in years]
+ba_columns = [f"BA{year}" for year in years]
 tem_columns = [f"Tem{year}" for year in years]
 pre_columns = [f"Pre{year}" for year in years]
 
@@ -206,7 +206,7 @@ gdf[["BA_Tem_corr", "BA_Tem_pval"]] = gdf.apply(lambda row: compute_correlation(
 gdf[["BA_Pre_corr", "BA_Pre_pval"]] = gdf.apply(lambda row: compute_correlation(row, pre_columns), axis=1, result_type='expand')
 
 # Save the results
-gdf.to_file("/your_path_here/grid5_Sta_corr.shp")
+gdf.to_file("./data/2. Temporal analysis/grid5_Sta_corr.shp")
 
 print("Pearson correlation analysis between BA and Tem, as well as BA and Pre, has been completed (excluding zero values). Results saved.")
 ```
