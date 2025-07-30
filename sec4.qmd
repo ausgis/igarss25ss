@@ -40,30 +40,17 @@ The step uses the gpboost model to fit temperature and precipitation data in 202
 3. You can also explore traditional machine learning models using the [`caret`](https://topepo.github.io/caret/) package.
 :::
 
-See [here](https://towardsdatascience.com/tree-boosting-for-spatial-data-789145d6d97d/?sk=4f9924d378dbb517e883fc9c612c34f1) for more details about the gpboost model on spatio-temporal data.
+Example: Machine learning using caret
 
 ```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
 #| code-fold: true
+
 library(sf)
 
 d24 = read_sf('./data/3. Spatial analysis/burnedarea_2024.shp')
 names(d24) = c("pre","tem","burned","geometry")
 d24
 
-library(gpboost)
-gp_model = GPModel(gp_coords = sdsfun::sf_coordinates(d24), 
-                   cov_function = "exponential")
-# Training
-bst = gpboost(data = as.matrix(sf::st_drop_geometry(d24)[,1:2]), 
-              label = as.matrix(sf::st_drop_geometry(d24)[,3,drop = FALSE]), 
-              gp_model = gp_model, objective = "regression_l2", verbose = 0)
-bst
-```
-
-Example: Machine learning using caret
-
-```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
-#| code-fold: true
 library(caret)
 
 # Prepare non-spatial data
@@ -80,6 +67,27 @@ model_caret = train(
 )
 
 model_caret
+```
+
+See [here](https://towardsdatascience.com/tree-boosting-for-spatial-data-789145d6d97d/?sk=4f9924d378dbb517e883fc9c612c34f1) for more details about the gpboost model on spatio-temporal data.
+
+```{r , cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
+#| code-fold: true
+
+library(sf)
+
+d24 = read_sf('./data/3. Spatial analysis/burnedarea_2024.shp')
+names(d24) = c("pre","tem","burned","geometry")
+d24
+
+library(gpboost)
+gp_model = GPModel(gp_coords = sdsfun::sf_coordinates(d24), 
+                   cov_function = "exponential")
+# Training
+bst = gpboost(data = as.matrix(sf::st_drop_geometry(d24)[,1:2]), 
+              label = as.matrix(sf::st_drop_geometry(d24)[,3,drop = FALSE]), 
+              gp_model = gp_model, objective = "regression_l2", verbose = 0)
+bst
 ```
 
 ### Model validation
