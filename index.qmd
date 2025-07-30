@@ -16,4 +16,21 @@ Please ensure that RStudio is installed on your computer and that you have signe
 <https://rstudio-education.github.io/hopr/starting.html>
 - Guide for Signing Up for Google Earth Engine:
 <https://courses.spatialthoughts.com/gee-sign-up.html>
+
+To set up and open the `igarss25ss` R project locally, follow these steps:
+
+1. **Download the project archive**
+   Download the zipped repository from GitHub:
+   [https://github.com/ausgis/igarss25ss/archive/refs/heads/main.zip](https://github.com/ausgis/igarss25ss/archive/refs/heads/main.zip)
+
+2. **Extract the contents**
+   Unzip the downloaded file to a location of your choice. This will create a folder named:
+   `igarss25ss-main/`
+
+3. **Open the R project**
+   Launch RStudio and open the file:
+   `igarss25ss-main/igarss25ss.Rproj`
+   This will load the project workspace and settings automatically.
+
+You're now ready to explore or work on the `igarss25ss` project in RStudio.
 :::
