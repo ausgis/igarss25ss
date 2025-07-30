@@ -36,6 +36,7 @@ years <- 2000:2024
 
 # Compute the regression slope and intercept for each grid cell
 grid <- grid %>%
+  dplyr::filter(dplyr::if_all(dplyr::everything(),\(.x) !is.na(.x))) %>%
   rowwise() %>%
   mutate(
     lm_model = list(lm(as.numeric(c_across(all_of(ba_cols))) ~ years)),  # Linear regression
@@ -122,6 +123,7 @@ tem_cols <- paste0("Tem", 2000:2024)  # Temperature columns
 
 # Compute the Spearman correlation and p-values for each grid cell
 grid <- grid %>%
+  dplyr::filter(dplyr::if_all(dplyr::everything(),\(.x) !is.na(.x))) %>% 
   rowwise() %>%
   mutate(
     cor_BA_Pre = cor.test(as.numeric(c_across(all_of(ba_cols))), 
