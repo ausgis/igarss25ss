@@ -25,6 +25,7 @@ pre
 tem = rast('./data/1. Data collection/Tem/Tem2024.tif')
 tem
 
+options(terra.pal = grDevices::terrain.colors(100,rev = T))
 par(mfrow = c(1, 3))
 plot(burnedarea, main = 'Burned area')
 plot(pre, main = 'Precipitation')

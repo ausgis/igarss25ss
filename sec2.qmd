@@ -8,27 +8,33 @@ This code is designed to compute the linear trend (slope and intercept) of burne
 
 ::: {.callout-caution title="Description of steps"}
 1. **Load necessary libraries**
+
    Load required packages for raster processing and file system access:
 
    * `terra` for spatial raster operations
    * `fs` for file listing and path management
 
 2. **Read raster files for burned area, precipitation, and temperature**
+
    Use `fs::dir_ls()` to list `.tif` files from respective folders and load them into raster stacks with `terra::rast()`.
 
 3. **Rename raster layers by year (2000–2024)**
+
    Assign meaningful names to each layer using `paste0("BA", 2000:2024)` (and similarly for `Pre` and `Tem`) to standardize temporal reference.
 
 4. **Resample all raster layers to a common spatial resolution**
+
    Ensure spatial alignment by resampling `BA` and `Pre` to match the resolution of `Tem`:
 
    * `method = "sum"` for burned area aggregation
    * `method = "average"` for precipitation
 
 5. **Combine all variables into a single raster stack**
+
    Merge burned area, precipitation, and temperature layers into one multi-layer object (`grid`) for future analyses.
 
 6. **Define the regression function**
+
    Create a function `lm_fun` that:
 
    * Uses `year = 2000:2024` as the independent variable
@@ -36,12 +42,15 @@ This code is designed to compute the linear trend (slope and intercept) of burne
    * Returns the intercept, slope (trend), and R² value of the model
 
 7. **Apply the regression model across all raster cells**
+
    Use `terra::app()` to apply the regression function to each cell of the `BA` layers (25-year time series), utilizing parallel computing (`cores = 8`).
 
 8. **Rename regression result layers**
+
    Label the output layers as `"intercept"`, `"slope"`, and `"r2"` to indicate the regression coefficients and model fit.
 
 9. **(Optional) Save the regression output or export results**
+
    You may use `terra::writeRaster()` to save the `ba_lm` raster to disk or extract summary statistics for further analysis.
 :::
 
@@ -110,7 +119,7 @@ This code is designed to compute the Spearman correlation coefficients and p-val
 :::
 
 ```{r fig-ba_cor, cache = FALSE, message = FALSE, echo=!knitr::is_latex_output()}
-#| fig.cap: "Maps of the linear trend bettwen bushfire area and time"
+#| fig.cap: "Maps of the correlation between bushfire area and temperature/precipitation"
 #| code-fold: true
 #| fig.height: 7
 cor_spearman_fun = \(x) {
